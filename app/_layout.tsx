@@ -1,29 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Slot } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ThemeProvider, useThemeContext } from '../contexts/ThemeContext';
+import { AuthProvider } from '../contexts/AuthContext';
+import { StatusBar, View } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState } from 'react';
+import {useTheme} from "@/config/theme";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+function InnerLayout() {
+    const { colorScheme } = useThemeContext();
+    const {colors} = useTheme();
+    const isDark = colorScheme === 'dark';
+    const backgroundColor = colors.background;
+
+    return (
+        <View style={{ flex: 1, backgroundColor }}>
+            <SafeAreaView style={{ flex: 1 }}>
+                <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+                <Slot />
+            </SafeAreaView>
+        </View>
+    );
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+    const [ready, setReady] = useState(false);
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+    useEffect(() => {
+        async function prepare() {
+            await SplashScreen.preventAutoHideAsync();
+            await new Promise((res) => setTimeout(res, 2000));
+            setReady(true);
+            await SplashScreen.hideAsync();
+        }
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+        prepare();
+    }, []);
+
+    if (!ready) return null;
+
+    return (
+        <ThemeProvider>
+            <AuthProvider>
+                <InnerLayout />
+            </AuthProvider>
+        </ThemeProvider>
+    );
 }

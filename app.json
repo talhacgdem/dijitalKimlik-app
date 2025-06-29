@@ -1,22 +1,24 @@
 {
   "expo": {
-    "name": "dijitalKimlik2",
-    "slug": "dijitalKimlik2",
+    "name": "dijitalKimlik",
+    "slug": "dijitalKimlik",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "dijitalkimlik2",
+    "icon": "./assets/icon.png",
+    "scheme": "dijitalkimlik",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dijitalkimlik.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.dijitalkimlik.app"
     },
     "web": {
       "bundler": "metro",
@@ -28,7 +30,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

@@ -1,45 +1,43 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import {Tabs} from 'expo-router';
+import {MaterialIcons} from '@expo/vector-icons';
+import {useAuth} from '../../contexts/AuthContext';
+import {TouchableOpacity} from 'react-native';
+import {useTheme} from '../../config/theme';
+import {useThemeContext} from "../../contexts/ThemeContext";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+export default function TabsLayout() {
+    const {logout} = useAuth();
+    const {toggleColorScheme} = useThemeContext();
+    const {colors} = useTheme();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
-  );
+    return (
+        <Tabs
+            screenOptions={{
+                headerTitle: 'Dijital Kimlik App',
+                headerStyle: {backgroundColor: colors.background},
+                headerTitleStyle: {color: colors.text},
+                headerLeft: () => (
+                    <TouchableOpacity onPress={logout} style={{marginLeft: 16}}>
+                        <MaterialIcons name="logout" size={24} color={colors.text}/>
+                    </TouchableOpacity>
+                ),
+                headerRight: () => (
+                    <TouchableOpacity onPress={toggleColorScheme} style={{marginRight: 16}}>
+                        <MaterialIcons name="brightness-6" size={24} color={colors.text}/>
+                    </TouchableOpacity>
+                ),
+                tabBarActiveTintColor: colors.tabIconSelected,
+                tabBarInactiveTintColor: colors.tabIconDefault,
+            }}
+        >
+            <Tabs.Screen name="index"
+                         options={{title: 'Ana Sayfa', tabBarIcon: () => <MaterialIcons name="home" size={24}/>}}/>
+            <Tabs.Screen name="profile"
+                         options={{title: 'Profil', tabBarIcon: () => <MaterialIcons name="person" size={24}/>}}/>
+            <Tabs.Screen name="digital-id"
+                         options={{title: 'Dijital ID', tabBarIcon: () => <MaterialIcons name="qr-code" size={24}/>}}/>
+            <Tabs.Screen name="about"
+                         options={{title: 'Hakkımızda', tabBarIcon: () => <MaterialIcons name="info" size={24}/>}}/>
+        </Tabs>
+    );
 }
