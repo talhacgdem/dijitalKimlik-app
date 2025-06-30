@@ -1,14 +1,12 @@
 import {Tabs} from 'expo-router';
 import {MaterialIcons} from '@expo/vector-icons';
-import {useAuth} from '../../contexts/AuthContext';
+import {useAuth} from '@/contexts/AuthContext';
 import {TouchableOpacity} from 'react-native';
-import {useTheme} from '../../config/theme';
-import {useThemeContext} from "../../contexts/ThemeContext";
+import {useThemeContext} from "@/contexts/ThemeContext";
 
 export default function TabsLayout() {
     const {logout} = useAuth();
-    const {toggleColorScheme} = useThemeContext();
-    const {colors} = useTheme();
+    let {toggleColorScheme, colors} = useThemeContext();
 
     return (
         <Tabs
@@ -26,8 +24,9 @@ export default function TabsLayout() {
                         <MaterialIcons name="brightness-6" size={24} color={colors.text}/>
                     </TouchableOpacity>
                 ),
-                tabBarActiveTintColor: colors.tabIconSelected,
-                tabBarInactiveTintColor: colors.tabIconDefault,
+                tabBarActiveTintColor: colors.text,
+                tabBarInactiveTintColor: colors.text,
+                tabBarShowLabel:false
             }}
         >
             <Tabs.Screen name="index"

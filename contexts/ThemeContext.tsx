@@ -1,23 +1,31 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Appearance } from 'react-native';
+import React, {createContext, ReactNode, useContext, useState} from 'react';
+import {useColorScheme as useSystemColorScheme} from 'react-native';
+import {Colors} from '@/constants/Colors';
 
 interface ThemeContextProps {
     colorScheme: 'light' | 'dark';
     toggleColorScheme: () => void;
+    colors: typeof Colors['light'] | typeof Colors['dark'];
 }
+
+const THEME_STORAGE_KEY = '@app_theme';
 
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
-export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-    const systemColorScheme = Appearance.getColorScheme();
+export const ThemeProvider = ({children}: { children: ReactNode }) => {
+    const systemColorScheme = useSystemColorScheme(); // 'light' | 'dark' | null
     const [colorScheme, setColorScheme] = useState<'light' | 'dark'>(systemColorScheme ?? 'light');
+    const colors = Colors[colorScheme];
 
-    const toggleColorScheme = () => {
-        setColorScheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    // Tema geçişi
+    const toggleColorScheme = async () => {
+        setColorScheme((prev) => {
+            return prev === 'light' ? 'dark' : 'light';
+        });
     };
 
     return (
-        <ThemeContext.Provider value={{ colorScheme, toggleColorScheme }}>
+        <ThemeContext.Provider value={{colorScheme, toggleColorScheme, colors}}>
             {children}
         </ThemeContext.Provider>
     );
