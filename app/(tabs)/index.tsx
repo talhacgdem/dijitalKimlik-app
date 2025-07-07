@@ -1,42 +1,87 @@
-import {FlatList, Text, TouchableOpacity} from 'react-native';
-import {MaterialIcons} from '@expo/vector-icons';
-import {Href, router} from 'expo-router';
-import {useThemeContext} from "@/contexts/ThemeContext";
+// app/(tabs)/index.tsx
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Link, Slot} from 'expo-router';
+import {Ionicons, MaterialIcons} from '@expo/vector-icons';
 
-type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
+type MenuItemProps = {
+    icon: keyof typeof MaterialIcons.glyphMap;
+    label: string;
+    route: string;
+    color?: string;
+}
 
-const MODULES: { id: string; title: string; icon: MaterialIconName; href: Href }[] = [
-    {id: 'oteller', title: 'Oteller', icon: 'hotel', href: '/modules/oteller'},
-    {id: 'egitim', title: 'Eğitim', icon: 'school', href: '/modules/egitim'},
-    {id: 'duyurular', title: 'Duyurular', icon: 'campaign', href: '/modules/duyurular'},
-    {id: 'haberler', title: 'Haberler', icon: 'article', href: '/modules/haberler'},
-    {id: 'bildirimler', title: 'Bildirimler', icon: 'notifications', href: '/modules/bildirimler'},
-    {id: 'indirimler', title: 'İndirimler', icon: 'local-offer', href: '/modules/indirimler'},
-];
+export default function Index() {
+    const menuItems: MenuItemProps[] = [
 
-export default function HomeScreen() {
-    const {colors} = useThemeContext();
+        {label: 'Oteller', icon: 'hotel', route: '/modules/oteller'},
+        {label: 'Eğitim', icon: 'school', route: '/modules/egitim'},
+        {label: 'Duyurular', icon: 'campaign', route: '/modules/duyurular'},
+        {label: 'Haberler', icon: 'article', route: '/modules/haberler'},
+        {label: 'Bildirimler', icon: 'notifications', route: '/modules/bildirimler'},
+        {label: 'İndirimler', icon: 'local-offer', route: '/modules/indirimler'}
+    ];
 
     return (
-        <FlatList
-            data={MODULES}
-            numColumns={2}
-            keyExtractor={(item) => item.id}
-            columnWrapperStyle={{justifyContent: 'space-between'}}
-            renderItem={({item}) => (
-                <TouchableOpacity
-                    onPress={() => router.push(item.href)}
-                    style={{
-                        flex: 0.48,
-                        aspectRatio: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <MaterialIcons name={item.icon} size={32} color={colors.text}/>
-                    <Text style={{color: colors.text}}>{item.title}</Text>
-                </TouchableOpacity>
-            )}
-        />
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
+                <Text style={styles.subText}>Dijital kimliğinizi yönetin</Text>
+            </View>
+
+            <View style={styles.menuGrid}>
+                {menuItems.map((item, index) => (
+                    <Link key={index} href={item.route as any} asChild>
+                        <TouchableOpacity style={styles.menuItem}>
+                            <View style={[styles.iconContainer, {backgroundColor: item.color}]}>
+                                <MaterialIcons name={item.icon} size={32} color="white"/>
+                            </View>
+                            <Text style={styles.menuItemText}>{item.label}</Text>
+                        </TouchableOpacity>
+                    </Link>
+                ))}
+            </View>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#fff',
+    },
+    header: {
+        marginBottom: 30,
+    },
+    welcomeText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    subText: {
+        fontSize: 16,
+        color: '#666',
+    },
+    menuGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    menuItem: {
+        width: '48%',
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    iconContainer: {
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    menuItemText: {
+        fontSize: 14,
+        textAlign: 'center',
+    },
+});

@@ -1,5 +1,4 @@
 import React, {createContext, ReactNode, useContext, useState} from 'react';
-import {useColorScheme as useSystemColorScheme} from 'react-native';
 import {Colors} from '@/constants/Colors';
 
 interface ThemeContextProps {
@@ -8,12 +7,10 @@ interface ThemeContextProps {
     colors: typeof Colors['light'] | typeof Colors['dark'];
 }
 
-const THEME_STORAGE_KEY = '@app_theme';
-
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider = ({children}: { children: ReactNode }) => {
-    const systemColorScheme = useSystemColorScheme(); // 'light' | 'dark' | null
+    const systemColorScheme = 'light';//useSystemColorScheme(); // 'light' | 'dark' | null
     const [colorScheme, setColorScheme] = useState<'light' | 'dark'>(systemColorScheme ?? 'light');
     const colors = Colors[colorScheme];
 

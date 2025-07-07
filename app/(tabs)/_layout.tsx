@@ -6,7 +6,7 @@ import {useThemeContext} from "@/contexts/ThemeContext";
 
 export default function TabsLayout() {
     const {logout} = useAuth();
-    let {toggleColorScheme, colors} = useThemeContext();
+    let {colors} = useThemeContext();
 
     return (
         <Tabs
@@ -19,14 +19,9 @@ export default function TabsLayout() {
                         <MaterialIcons name="logout" size={24} color={colors.text}/>
                     </TouchableOpacity>
                 ),
-                headerRight: () => (
-                    <TouchableOpacity onPress={toggleColorScheme} style={{marginRight: 16}}>
-                        <MaterialIcons name="brightness-6" size={24} color={colors.text}/>
-                    </TouchableOpacity>
-                ),
                 tabBarActiveTintColor: colors.text,
                 tabBarInactiveTintColor: colors.text,
-                tabBarShowLabel:false
+                tabBarShowLabel: false
             }}
         >
             <Tabs.Screen name="index"
