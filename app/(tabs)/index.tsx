@@ -1,7 +1,8 @@
 // app/(tabs)/index.tsx
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Link, Slot} from 'expo-router';
-import {Ionicons, MaterialIcons} from '@expo/vector-icons';
+import {Link} from 'expo-router';
+import {MaterialIcons} from '@expo/vector-icons';
+import {useDefaultColor} from "@/hooks/useThemeColor";
 
 type MenuItemProps = {
     icon: keyof typeof MaterialIcons.glyphMap;
@@ -11,6 +12,7 @@ type MenuItemProps = {
 }
 
 export default function Index() {
+    let colors = useDefaultColor();
     const menuItems: MenuItemProps[] = [
 
         {label: 'Oteller', icon: 'hotel', route: '/modules/oteller'},
@@ -33,7 +35,7 @@ export default function Index() {
                     <Link key={index} href={item.route as any} asChild>
                         <TouchableOpacity style={styles.menuItem}>
                             <View style={[styles.iconContainer, {backgroundColor: item.color}]}>
-                                <MaterialIcons name={item.icon} size={32} color="white"/>
+                                <MaterialIcons name={item.icon} size={48} color={colors.text}/>
                             </View>
                             <Text style={styles.menuItemText}>{item.label}</Text>
                         </TouchableOpacity>
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     menuItemText: {
-        fontSize: 14,
+        fontSize: 24,
         textAlign: 'center',
     },
 });

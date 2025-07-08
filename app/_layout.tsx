@@ -1,30 +1,58 @@
-import {Slot} from 'expo-router';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {ThemeProvider, useThemeContext} from '@/contexts/ThemeContext';
-import {AuthProvider} from '@/contexts/AuthContext';
-import {StatusBar, View} from 'react-native';
+// app/_layout.tsx
+import React, { useEffect } from 'react';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import Toast from 'react-native-toast-message';
+import * as SplashScreen from 'expo-splash-screen';
 
+// SplashScreen'in otomatik kapanmasını engelle
+SplashScreen.preventAutoHideAsync();
 
-function InnerLayout() {
-    const {colors, colorScheme} = useThemeContext();
-    console.log("Tema güncellendi, yeni arkaplan rengi", colors.background);
-    return (
-        <View style={{flex: 1, backgroundColor: colors.background}}>
-            <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
-                <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}/>
-                <Slot/>
-            </SafeAreaView>
-        </View>
-    );
+// Yönlendirme kontrolü için özel bileşen
+function AuthGuard({ children }: { children: React.ReactNode }) {
+    const { isAuthenticated, isLoading } = useAuth();
+    const segments = useSegments();
+    const router = useRouter();
+
+    useEffect(() => {
+        // Yükleme tamamlandığında splash screen'i kapat
+        if (!isLoading) {
+            SplashScreen.hideAsync();
+        }
+    }, [isLoading]);
+
+    useEffect(() => {
+        if (isLoading) return;
+
+        const inAuthGroup = segments[0] !== '(tabs)' && segments[0] !== 'modules';
+
+        // Kullanıcı kimlik doğrulaması yapmadıysa ve auth grubunda değilse
+        if (!isAuthenticated && !inAuthGroup) {
+            // Login sayfasına yönlendir
+            router.replace('/(auth)/login');
+        }
+        // Kullanıcı kimlik doğrulaması yaptıysa ve auth grubundaysa
+        else if (isAuthenticated && inAuthGroup) {
+            // Ana sayfaya yönlendir (tabs alanına)
+            router.replace('/(tabs)');
+        }
+    }, [isAuthenticated, segments, isLoading, router]);
+
+    return <>{children}</>;
 }
 
 export default function RootLayout() {
-
     return (
-        <ThemeProvider>
-            <AuthProvider>
-                <InnerLayout/>
-            </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+            <AuthGuard >
+                <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(modules)" options={{ headerShown: false }} />
+                    <Stack.Screen name="+not-found" options={{ title: 'Sayfa Bulunamadı' }} />
+                </Stack>
+            </AuthGuard>
+            <Toast />
+        </AuthProvider>
     );
 }

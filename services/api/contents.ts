@@ -1,0 +1,21 @@
+import {apiClient} from './client';
+import {AnnouncementItem, GenericResponse, NewsItem} from '@/types/ContentTypes';
+import {BASE_URL} from "@/services/api/Endpoints";
+
+export const getNews = async (page: number = 1): Promise<GenericResponse<NewsItem>> => {
+    try {
+        return await apiClient.get<GenericResponse<NewsItem>>(`${BASE_URL}/news?page=${page}`);
+    } catch (error) {
+        console.error('Haberler yüklenirken hata oluştu:', error);
+        throw error;
+    }
+};
+
+export const getAnnouncements = async (page: number = 1): Promise<GenericResponse<AnnouncementItem>> => {
+    try {
+        return await apiClient.get<GenericResponse<AnnouncementItem>>(`${BASE_URL}/announcements?page=${page}`);
+    } catch (error) {
+        console.error('Haberler yüklenirken hata oluştu:', error);
+        throw error;
+    }
+};

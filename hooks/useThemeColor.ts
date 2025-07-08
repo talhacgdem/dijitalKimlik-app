@@ -19,3 +19,8 @@ export function useThemeColor(
     return Colors[theme][colorName];
   }
 }
+
+
+export function useDefaultColor() {
+    return Colors.light;
+}
