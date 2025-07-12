@@ -1,16 +1,12 @@
 import React from 'react';
-import {getAnnouncements} from '@/services/api/contents';
-import {AnnouncementItem} from '@/types/ContentTypes';
-import GenericListView from "@/components/dk/GenericListView";
+import {Text} from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 // Haber Kartı Bileşeni
-export default function Haberler() {
+export default function Duyurular() {
     return (
-        <GenericListView<AnnouncementItem>
-            fetchData={getAnnouncements}
-            emptyMessage="Görüntülenecek duyuru bulunamadı"
-            loadingMessage="Duyurular yükleniyor..."
-            modalHeader="Duyuru Detay"
-        />
+        <SafeAreaView edges={['bottom']} style={{flex: 1, padding: 16}}>
+            <Text style={{fontSize: 18}}>Duyurular Modülü</Text>
+        </SafeAreaView>
     );
 }

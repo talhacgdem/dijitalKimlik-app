@@ -1,19 +1,21 @@
-import {GenericItem} from "@/components/dk/GenericListView";
+export interface ContentItem {
+    id: number;
+    title: string;
+    content: string;
+    image?: string;
+    created_at: string;
+    [key: string]: any;
+}
 
-export type NewsItem = GenericItem
-export type AnnouncementItem = GenericItem
-export type HotelItem = GenericItem
-
-export interface GenericResponse<T extends GenericItem> {
+export interface ContentResponse<T> {
     success: boolean;
-    message: string;
     data: T[];
     meta: {
         current_page: number;
-        from: number;
         last_page: number;
-        per_page: number;
-        to: number;
-        total: number;
     };
+    message?: string;
 }
+
+export type NewsItem = ContentItem
+export type NewsResponse = ContentResponse<NewsItem>

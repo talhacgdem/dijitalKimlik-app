@@ -10,28 +10,12 @@ import DKCard from "@/components/dk/Card";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 import DKPagination from "@/components/dk/Pagination";
 import {modalStyles} from "@/constants/Styles";
+import {ContentItem, ContentResponse} from "@/types/ContentTypes";
 
-export interface GenericItem {
-    id: number;
-    title: string;
-    content: string;
-    image?: string;
-    created_at: string;
-    [key: string]: any;
-}
 
-export interface ApiResponse<T> {
-    success: boolean;
-    data: T[];
-    meta: {
-        current_page: number;
-        last_page: number;
-    };
-    message?: string;
-}
 
-interface GenericListViewProps<T extends GenericItem> {
-    fetchData: (page: number) => Promise<ApiResponse<T>>;
+interface GenericListViewProps<T extends ContentItem> {
+    fetchData: (page: number) => Promise<ContentResponse<T>>;
     cardHeight?: number;
     emptyMessage?: string;
     loadingMessage?: string;
@@ -39,7 +23,7 @@ interface GenericListViewProps<T extends GenericItem> {
     modalHeader?: string;
 }
 
-export default function GenericListView<T extends GenericItem>({
+export default function GenericListView<T extends ContentItem>({
                                                                    fetchData,
                                                                    emptyMessage = 'Görüntülenecek öğe bulunamadı',
                                                                    loadingMessage = 'Yükleniyor...'
