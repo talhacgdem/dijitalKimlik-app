@@ -1,12 +1,13 @@
+// screens/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Button } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import DKTextInput from '@/components/dk/TextInput';
 import { useDefaultColor } from '@/hooks/useThemeColor';
-import {useLoading} from "@/hooks/useLoading";
-import {isValidTCKN} from "@/utils/StringUtils";
+import { useLoading } from "@/hooks/useLoading";
+import { isValidTCKN } from "@/utils/StringUtils";
 
 interface ValidationErrors {
     identityNumber?: string;
@@ -19,6 +20,7 @@ export default function LoginScreen() {
     const colors = useDefaultColor();
     const [identityNumber, setIdentityNumber] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [touched, setTouched] = useState<{ identityNumber: boolean; password: boolean }>({
         identityNumber: false,
@@ -51,11 +53,8 @@ export default function LoginScreen() {
         return undefined;
     };
 
-    // Input değişiklik handlers
     const handleIdentityNumberChange = (text: string) => {
-        // Sadece rakam girişine izin ver
         const numericText = text.replace(/[^0-9]/g, '');
-        // Maksimum 11 karakter
         const limitedText = numericText.slice(0, 11);
 
         setIdentityNumber(limitedText);
@@ -75,7 +74,6 @@ export default function LoginScreen() {
         }
     };
 
-    // Blur handlers (input'tan çıkınca çalışır)
     const handleIdentityNumberBlur = () => {
         setTouched(prev => ({ ...prev, identityNumber: true }));
         const error = validateIdentityNumber(identityNumber);
@@ -88,7 +86,6 @@ export default function LoginScreen() {
         setErrors(prev => ({ ...prev, password: error }));
     };
 
-    // Form validasyonu
     const isFormValid = (): boolean => {
         const identityError = validateIdentityNumber(identityNumber);
         const passwordError = validatePassword(password);
@@ -111,10 +108,13 @@ export default function LoginScreen() {
             try {
                 await login(identityNumber, password);
             } catch (error) {
-                // Hata AuthContext'te handle edilecek
                 console.error('Login error:', error);
             }
         }
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     return (
@@ -127,73 +127,79 @@ export default function LoginScreen() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                <View style={styles.logoContainer}>
-                    <Image
-                        source={require('@/assets/icon.png')}
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
-                </View>
+                {/* Ana İçerik Konteyner - Dikey Ortalama */}
+                <View style={styles.contentContainer}>
+                    {/* Logo */}
+                    <View style={styles.logoContainer}>
+                        <Image
+                            source={require('@/assets/icon.png')}
+                            style={styles.logo}
+                            resizeMode="contain"
+                        />
+                    </View>
 
-                {/* Başlık */}
-                <View style={styles.titleContainer}>
-                    <Text style={[styles.title, { color: colors.text }]}>
-                        Hoş Geldiniz
-                    </Text>
-                    <Text style={[styles.subtitle, { color: colors.secondaryText }]}>
-                        Hesabınıza giriş yapın
-                    </Text>
-                </View>
+                    {/* Başlık */}
+                    <View style={styles.titleContainer}>
+                        <Text style={[styles.title, { color: colors.text }]}>
+                            Hoş Geldiniz
+                        </Text>
+                        <Text style={[styles.subtitle, { color: colors.secondaryText }]}>
+                            Hesabınıza giriş yapın
+                        </Text>
+                    </View>
 
-                {/* Form */}
-                <View style={styles.formContainer}>
-                    <DKTextInput
-                        icon={{name:'account', position:'left'}}
-                        label="TC Kimlik No"
-                        value={identityNumber}
-                        onChange={handleIdentityNumberChange}
-                        keyboardType="numeric"
-                        maxLength={11}
-                        onBlur={handleIdentityNumberBlur}
-                        error={touched.identityNumber && !!errors.identityNumber}
-                        helperText={touched.identityNumber ? errors.identityNumber : ''}
-                    />
+                    {/* Form */}
+                    <View style={styles.formContainer}>
+                        <DKTextInput
+                            label="TC Kimlik No"
+                            value={identityNumber}
+                            onChange={handleIdentityNumberChange}
+                            keyboardType="numeric"
+                            maxLength={11}
+                            onBlur={handleIdentityNumberBlur}
+                            error={touched.identityNumber && !!errors.identityNumber}
+                            helperText={touched.identityNumber ? errors.identityNumber : ''}
+                            leftIcon="account"
+                        />
 
-                    <DKTextInput
-                        label="Şifre"
-                        value={password}
-                        onChange={handlePasswordChange}
-                        secureTextEntry
-                        onBlur={handlePasswordBlur}
-                        error={touched.password && !!errors.password}
-                        helperText={touched.password ? errors.password : ''}
-                        left="lock"
-                        right="eye"
-                    />
-                </View>
+                        <DKTextInput
+                            label="Şifre"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            secureTextEntry={!showPassword}
+                            onBlur={handlePasswordBlur}
+                            error={touched.password && !!errors.password}
+                            helperText={touched.password ? errors.password : ''}
+                            leftIcon="lock"
+                            rightIcon={showPassword ? "eye-off" : "eye"}
+                            onRightIconPress={togglePasswordVisibility}
+                        />
+                    </View>
 
-                {/* Buttons */}
-                <View style={styles.buttonContainer}>
-                    <Button
-                        mode="contained"
-                        onPress={handleLogin}
-                        loading={loading}
-                        disabled={loading}
-                        style={styles.loginButton}
-                        contentStyle={styles.loginButtonContent}
-                        labelStyle={styles.loginButtonLabel}
-                    >
-                        {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
-                    </Button>
+                    {/* Buttons */}
+                    <View style={styles.buttonContainer}>
+                        <Button
+                            buttonColor={"#e44e01"}
+                            mode="contained"
+                            onPress={handleLogin}
+                            loading={loading}
+                            disabled={loading}
+                            style={styles.loginButton}
+                            contentStyle={styles.loginButtonContent}
+                            labelStyle={styles.loginButtonLabel}
+                        >
+                            {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
+                        </Button>
 
-                    <Button
-                        mode="text"
-                        onPress={() => router.push('/forgot-password')}
-                        style={styles.forgotButton}
-                        labelStyle={[styles.forgotButtonLabel, { color: colors.text }]}
-                    >
-                        Şifremi Unuttum
-                    </Button>
+                        <Button
+                            mode="text"
+                            onPress={() => router.push('/forgot-password')}
+                            style={styles.forgotButton}
+                            labelStyle={[styles.forgotButtonLabel, { color: colors.text }]}
+                        >
+                            Şifremi Unuttum
+                        </Button>
+                    </View>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -207,8 +213,12 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 40,
+        paddingVertical: 40,
+    },
+    contentContainer: {
+        flex: 1,
+        justifyContent: 'center', // Dikey ortalama
+        minHeight: '100%',
     },
     logoContainer: {
         alignItems: 'center',
@@ -256,17 +266,5 @@ const styles = StyleSheet.create({
     forgotButtonLabel: {
         fontSize: 14,
         fontWeight: '500',
-    },
-    footerContainer: {
-        alignItems: 'center',
-        marginTop: 'auto',
-    },
-    footerText: {
-        fontSize: 14,
-        textAlign: 'center',
-    },
-    footerLink: {
-        fontWeight: '600',
-        textDecorationLine: 'underline',
     },
 });
