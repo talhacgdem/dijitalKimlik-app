@@ -4,6 +4,7 @@ import {formatDate} from "@/utils/DateUtil";
 import {truncateContent} from "@/utils/StringUtils";
 import React from "react";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
+import {MaterialIcons} from "@expo/vector-icons";
 
 export interface DKCardProps {
     title: string;
@@ -12,9 +13,13 @@ export interface DKCardProps {
     date: string;
     onPress: () => void;
     cardHeight?: number;
+    controlItems?: {
+        onEdit: () => void,
+        onRemove: () => void
+    }
 }
 
-export default function DKCard({title, content, image, date, onPress, cardHeight = 280}: DKCardProps) {
+export default function DKCard({title, content, image, date, onPress, cardHeight = 300, controlItems}: DKCardProps) {
 
     const colors = useDefaultColor();
 
@@ -24,7 +29,7 @@ export default function DKCard({title, content, image, date, onPress, cardHeight
                 styles.card,
                 {backgroundColor: colors.cardBackground, height: cardHeight}
             ]}
-            onPress={onPress}
+            onPress={controlItems == null ? onPress : () => {}}
         >
             {image && (
                 <Image
@@ -44,6 +49,21 @@ export default function DKCard({title, content, image, date, onPress, cardHeight
                     {truncateContent(content)}
                 </Text>
             </View>
+            {controlItems && (
+                <View style={{
+                    flexDirection:"row",
+                    display:"flex",
+                    justifyContent:"space-between",
+                    padding:10
+                }}>
+                    <TouchableOpacity onPress={() => controlItems.onEdit()}>
+                        <MaterialIcons name="edit" size={32} color={colors.tint}/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => controlItems.onRemove()}>
+                        <MaterialIcons name="delete" size={32} color="red"/>
+                    </TouchableOpacity>
+                </View>
+            )}
         </TouchableOpacity>
     );
 }
