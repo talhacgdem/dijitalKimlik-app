@@ -9,8 +9,7 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('');
 
     const handleLogin = () => {
-        login(identityNumber, password);
-        router.replace('/');
+        login(identityNumber, password)
     };
 
     return (
