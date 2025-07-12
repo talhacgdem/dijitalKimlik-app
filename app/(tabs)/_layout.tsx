@@ -10,7 +10,7 @@ export default function TabsLayout() {
     return (
         <Tabs
             screenOptions={{
-                headerTitle: 'Sağlık HAK SEN',
+                headerTitle: 'Sağlık HAK-SEN',
                 headerStyle: {backgroundColor: colors.background},
                 headerTitleStyle: {color: colors.text},
                 headerRight: () => (
@@ -18,29 +18,60 @@ export default function TabsLayout() {
                         <MaterialIcons name="logout" size={24} color={colors.text}/>
                     </TouchableOpacity>
                 ),
-                tabBarActiveTintColor: colors.text,
-                tabBarInactiveTintColor: colors.tabIconSelected,
+                tabBarActiveTintColor: colors.primary,
+                tabBarInactiveTintColor: colors.text,
                 tabBarShowLabel: false,
                 tabBarStyle: {
-                    height: 70, // Tab bar yüksekliğini artırın
-                    paddingBottom: 20, // Alt boşluğu ayarlayın
-                    paddingTop: 10, // Üst boşluğu ayarlayın
+                    height: 70,
+                    paddingBottom: 20,
+                    paddingTop: 10,
+                    backgroundColor: colors.background, // Tab bar arka plan rengi
                 },
                 tabBarIconStyle: {
-                    width: 40, // İkon alanını genişletin
-                    height: 40, // İkon alanını yükseltin
+                    width: 40,
+                    height: 40,
                 },
-
             }}
         >
-            <Tabs.Screen name="index"
-                         options={{title: 'Ana Sayfa', tabBarIcon: () => <MaterialIcons name="home" size={32}/>}}/>
-            <Tabs.Screen name="profile"
-                         options={{title: 'Profil', tabBarIcon: () => <MaterialIcons name="person" size={32}/>}}/>
-            <Tabs.Screen name="digital-id"
-                         options={{title: 'Dijital ID', tabBarIcon: () => <MaterialIcons name="qr-code" size={32}/>}}/>
-            <Tabs.Screen name="about"
-                         options={{title: 'Hakkımızda', tabBarIcon: () => <MaterialIcons name="info" size={32}/>}}/>
+            <Tabs.Screen
+                name="index"
+                options={{
+                    title: 'Ana Sayfa',
+                    tabBarIcon: ({color}) => (
+                        <MaterialIcons
+                            name="home"
+                            size={32}
+                            color={color}
+                        />
+                    )
+                }}
+            />
+            <Tabs.Screen
+                name="profile"
+                options={{
+                    title: 'Profil',
+                    tabBarIcon: ({color}) => (
+                        <MaterialIcons
+                            name="person"
+                            size={32}
+                            color={color}
+                        />
+                    )
+                }}
+            />
+            <Tabs.Screen
+                name="about"
+                options={{
+                    title: 'Hakkımızda',
+                    tabBarIcon: ({color}) => (
+                        <MaterialIcons
+                            name="info"
+                            size={32}
+                            color={color}
+                        />
+                    )
+                }}
+            />
         </Tabs>
     );
 }

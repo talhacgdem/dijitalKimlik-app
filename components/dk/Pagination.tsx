@@ -19,7 +19,7 @@ export default function DKPagination({currentPage, lastPage, onPageChange}: DKPa
                 style={[
                     styles.arrowButton,
                     {
-                        backgroundColor: (currentPage <= 1) ? colors.inactiveBackground : colors.tint,
+                        backgroundColor: (currentPage <= 1) ? colors.inactiveBackground : colors.primary,
                         opacity: (currentPage <= 1) ? 0.5 : 1
                     }
                 ]}
@@ -39,7 +39,7 @@ export default function DKPagination({currentPage, lastPage, onPageChange}: DKPa
                 style={[
                     styles.arrowButton,
                     {
-                        backgroundColor: (currentPage >= lastPage) ? colors.inactiveBackground : colors.tint,
+                        backgroundColor: (currentPage >= lastPage) ? colors.inactiveBackground : colors.primary,
                         opacity: (currentPage >= lastPage) ? 0.5 : 1
                     }
                 ]}

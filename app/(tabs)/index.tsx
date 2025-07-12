@@ -27,7 +27,6 @@ export default function Index() {
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
-                <Text style={styles.subText}>Dijital kimliğinizi yönetin</Text>
             </View>
 
             <View style={styles.menuGrid}>
@@ -35,7 +34,7 @@ export default function Index() {
                     <Link key={index} href={item.route as any} asChild>
                         <TouchableOpacity style={styles.menuItem}>
                             <View style={[styles.iconContainer, {backgroundColor: item.color}]}>
-                                <MaterialIcons name={item.icon} size={48} color={colors.text}/>
+                                <MaterialIcons name={item.icon} size={48} color={colors.primary}/>
                             </View>
                             <Text style={styles.menuItemText}>{item.label}</Text>
                         </TouchableOpacity>

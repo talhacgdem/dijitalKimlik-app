@@ -167,7 +167,7 @@ export default function AdminListView<T extends ContentItem>({
         <SafeAreaView edges={['bottom']} style={styles.container}>
             <View style={styles.header}>
                 <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
-                <TouchableOpacity style={[styles.addButton, {backgroundColor: colors.tint}]}
+                <TouchableOpacity style={[styles.addButton, {backgroundColor: colors.primary}]}
                                   onPress={() => handleOpenModal()}>
                     <Text style={styles.addButtonText}>+ Ekle</Text>
                 </TouchableOpacity>

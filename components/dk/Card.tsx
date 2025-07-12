@@ -42,7 +42,7 @@ export default function DKCard({title, content, image, date, onPress, cardHeight
                 <Text style={[styles.title, {color: colors.text}]} numberOfLines={2}>
                     {title}
                 </Text>
-                <Text style={[styles.date, {color: colors.secondaryText}]}>
+                <Text style={[styles.date, {color: colors.primary}]}>
                     {formatDate(date)}
                 </Text>
                 <Text style={[styles.content, {color: colors.text}]} numberOfLines={3}>
@@ -56,11 +56,11 @@ export default function DKCard({title, content, image, date, onPress, cardHeight
                     justifyContent:"space-between",
                     padding:10
                 }}>
-                    <TouchableOpacity onPress={() => controlItems.onEdit()}>
-                        <MaterialIcons name="edit" size={32} color={colors.tint}/>
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={() => controlItems.onRemove()}>
-                        <MaterialIcons name="delete" size={32} color="red"/>
+                        <MaterialIcons name="delete" size={32} color="black"/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => controlItems.onEdit()}>
+                        <MaterialIcons name="edit" size={32} color={colors.primary}/>
                     </TouchableOpacity>
                 </View>
             )}

@@ -53,7 +53,10 @@ export default function DKTextInput({
             <TextInput
                 style={[
                     styles.input,
-                    error && styles.inputError
+                    error && styles.inputError,
+                    {
+                        borderColor: colors.primary
+                    }
                 ]}
                 placeholder={label}
                 label={label}
@@ -64,13 +67,13 @@ export default function DKTextInput({
                 error={error}
                 theme={{
                     colors: {
-                        primary: colors.text || colors.text,
+                        primary: colors.primary || colors.text,
                         error: colors.error || '#F44336',
                         onSurfaceVariant: colors.secondaryText || '#666',
                         outline: colors.border || '#E0E0E0',
                     }
                 }}
-                left={leftIcon ? <TextInput.Icon icon={leftIcon} /> : undefined}
+                left={leftIcon ? <TextInput.Icon color={colors.primary} icon={leftIcon} /> : undefined}
                 right={renderRightIcon()}
                 {...props}
             />

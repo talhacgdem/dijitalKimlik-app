@@ -179,7 +179,7 @@ export default function LoginScreen() {
                     {/* Buttons */}
                     <View style={styles.buttonContainer}>
                         <Button
-                            buttonColor={"#e44e01"}
+                            buttonColor={colors.primary}
                             mode="contained"
                             onPress={handleLogin}
                             loading={loading}
