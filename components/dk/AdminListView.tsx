@@ -1,68 +1,87 @@
-// app/components/AdminListView.tsx
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    RefreshControl,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import {useDefaultColor} from '@/hooks/useThemeColor';
-import {MaterialIcons} from '@expo/vector-icons';
 import DKModal from "@/components/dk/Modal";
 import DKTextInput from "@/components/dk/TextInput";
+import {useGlobalLoading} from "@/contexts/LoadingContext";
+import {ContentItem, ContentResponse} from "@/types/ContentTypes";
+import DKCard from "@/components/dk/Card";
+import DKPagination from "@/components/dk/Pagination";
 
-export interface AdminItem {
-    id: number;
-    title: string;
-    content: string;
-
-    [key: string]: any;
-}
-
-interface ApiResponse<T> {
-    success: boolean;
-    data: T[];
-    meta: {
-        current_page: number;
-        last_page: number;
-    };
-    message?: string;
-}
-
-interface AdminListViewProps<T extends AdminItem> {
-    fetchData: (page: number) => Promise<ApiResponse<T>>;
+interface AdminListViewProps<T extends ContentItem> {
+    fetchData: (page: number) => Promise<ContentResponse<T>>;
     createItem: (data: Partial<T>) => Promise<void>;
-    updateItem: (id: number, data: Partial<T>) => Promise<void>;
-    deleteItem: (id: number) => Promise<void>;
+    updateItem: (item: T, data: Partial<T>) => Promise<void>;
+    deleteItem: (item: T) => Promise<void>;
     title?: string;
+    loadingMessage?: string;
+    emptyMessage?: string;
 }
 
-export default function AdminListView<T extends AdminItem>({
-                                                               fetchData,
-                                                               createItem,
-                                                               updateItem,
-                                                               deleteItem,
-                                                               title = 'Kayıtlar'
-                                                           }: AdminListViewProps<T>) {
+export default function AdminListView<T extends ContentItem>({
+                                                                 fetchData,
+                                                                 createItem,
+                                                                 updateItem,
+                                                                 deleteItem,
+                                                                 title = 'Kayıtlar',
+                                                                 loadingMessage = 'Yükleniyor...',
+                                                                 emptyMessage = 'Görüntülenecek öğe bulunamadı'
+                                                             }: AdminListViewProps<T>) {
     const colors = useDefaultColor();
+    const {showLoading, hideLoading} = useGlobalLoading();
+
     const [data, setData] = useState<T[]>([]);
-    const [loading, setLoading] = useState(false);
+
+    const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedItem, setSelectedItem] = useState<T | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        lastPage: 1,
+    });
+
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState<Partial<T>>({});
-    const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-    const [pagination, setPagination] = useState({currentPage: 1, lastPage: 1});
 
-    const loadData = async (page = 1) => {
-        setLoading(true);
+    const loadData = async (page: number = 1, isRefresh: boolean = false) => {
         try {
+            // Refresh değilse global loading göster
+            if (!isRefresh) {
+                showLoading(loadingMessage);
+            }
+
+            setError(null);
+
             const response = await fetchData(page);
+
             if (response.success) {
                 setData(response.data);
                 setPagination({
                     currentPage: response.meta.current_page,
                     lastPage: response.meta.last_page,
                 });
+            } else {
+                setError(response.message || 'Veriler yüklenemedi');
             }
-        } catch (e) {
-            Alert.alert('Hata', 'Veriler yüklenirken bir sorun oluştu.');
+        } catch (err) {
+            setError('Veriler yüklenirken bir hata oluştu');
+            console.error(err);
         } finally {
-            setLoading(false);
+            if (!isRefresh) {
+                hideLoading();
+            }
+            setRefreshing(false);
         }
     };
 
@@ -70,15 +89,24 @@ export default function AdminListView<T extends AdminItem>({
         loadData();
     }, []);
 
+    const handlePageChange = (page: number) => {
+        loadData(page, false);
+    };
+
+    const handleRefresh = () => {
+        setRefreshing(true);
+        loadData(1, true);
+    };
+
     const handleOpenModal = (item?: T) => {
         if (item) {
             setEditMode(true);
             setFormData(item);
-            setSelectedItemId(item.id);
+            setSelectedItem(item);
         } else {
             setEditMode(false);
             setFormData({});
-            setSelectedItemId(null);
+            setSelectedItem(null);
         }
         setModalVisible(true);
     };
@@ -86,14 +114,14 @@ export default function AdminListView<T extends AdminItem>({
     const handleCloseModal = () => {
         setEditMode(false);
         setFormData({});
-        setSelectedItemId(null);
+        setSelectedItem(null);
         setModalVisible(false);
     };
 
     const handleSave = async () => {
         try {
-            if (editMode && selectedItemId != null) {
-                await updateItem(selectedItemId, formData);
+            if (editMode && selectedItem != null) {
+                await updateItem(selectedItem, formData);
             } else {
                 await createItem(formData);
             }
@@ -104,39 +132,39 @@ export default function AdminListView<T extends AdminItem>({
         }
     };
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (item: T) => {
         Alert.alert('Sil', 'Bu kaydı silmek istediğinize emin misiniz?', [
             {text: 'İptal', style: 'cancel'},
             {
                 text: 'Sil',
                 style: 'destructive',
                 onPress: async () => {
-                    await deleteItem(id);
+                    await deleteItem(item);
                     await loadData();
                 }
             }
         ]);
     };
 
-    const renderItem = ({item}: { item: T }) => (
-        <View style={[styles.itemCard, {backgroundColor: colors.cardBackground}]}>
-            <View style={{flex: 1}}>
-                <Text style={[styles.itemTitle, {color: colors.text}]}>{item.title}</Text>
-                <Text style={{color: colors.secondaryText}}>{item.content}</Text>
-            </View>
-            <View style={styles.actions}>
-                <TouchableOpacity onPress={() => handleOpenModal(item)}>
-                    <MaterialIcons name="edit" size={24} color={colors.tint}/>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                    <MaterialIcons name="delete" size={24} color="red"/>
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
+    // Hata durumu
+    if (error && data.length === 0) {
+        return (
+            <SafeAreaView edges={['bottom']} style={styles.container}>
+                <View style={styles.errorContainer}>
+                    <Text style={[styles.errorText, {color: colors.error}]}>{error}</Text>
+                    <TouchableOpacity
+                        style={[styles.retryButton, {backgroundColor: colors.tint}]}
+                        onPress={() => loadData()}
+                    >
+                        <Text style={styles.retryButtonText}>Tekrar Dene</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView edges={['bottom']} style={styles.container}>
             <View style={styles.header}>
                 <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
                 <TouchableOpacity style={[styles.addButton, {backgroundColor: colors.tint}]}
@@ -145,18 +173,48 @@ export default function AdminListView<T extends AdminItem>({
                 </TouchableOpacity>
             </View>
 
-            {loading ? (
-                <ActivityIndicator size="large" color={colors.tint} style={{marginTop: 20}}/>
-            ) : (
+
                 <FlatList
                     data={data}
+                    renderItem={({item}) => (
+                        <DKCard
+                            title={item.title}
+                            content={item.content}
+                            image={item.image}
+                            date={item.created_at}
+                            onPress={() => {}}
+                            controlItems={{
+                                onEdit: () => handleOpenModal(item),
+                                onRemove: () => handleDelete(item)
+                            }}
+                        />
+                    )}
                     keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderItem}
                     contentContainerStyle={{paddingBottom: 100}}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                            colors={[colors.tint]}
+                        />
+                    }
+                    ListEmptyComponent={
+                        <Text style={[styles.emptyText, {color: colors.secondaryText}]}>
+                            {emptyMessage}
+                        </Text>
+                    }
+                />
+
+            {pagination.lastPage > 1 && (
+                <DKPagination
+                    currentPage={pagination.currentPage}
+                    lastPage={pagination.lastPage}
+                    onPageChange={handlePageChange}
                 />
             )}
 
-            <DKModal modalHeader={editMode ? 'Güncelle' : 'Yeni Kayıt'} visible={modalVisible} onClose={handleCloseModal}>
+            <DKModal modalHeader={editMode ? 'Güncelle' : 'Yeni Kayıt'} visible={modalVisible}
+                     onClose={handleCloseModal}>
                 <DKTextInput
                     label="Başlık"
                     value={formData.title?.toString() || ''}
@@ -207,4 +265,29 @@ const styles = StyleSheet.create({
     },
     modalButtons: {flexDirection: 'row', justifyContent: 'space-between', marginTop: 16},
     modalButton: {padding: 12, borderRadius: 6},
+    emptyText: {
+        textAlign: 'center',
+        padding: 24,
+        fontSize: 16,
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+    },
+    errorText: {
+        fontSize: 16,
+        marginBottom: 16,
+        textAlign: 'center',
+    },
+    retryButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 6,
+    },
+    retryButtonText: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+    },
 });

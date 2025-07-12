@@ -16,10 +16,8 @@ import {ContentItem, ContentResponse} from "@/types/ContentTypes";
 
 interface GenericListViewProps<T extends ContentItem> {
     fetchData: (page: number) => Promise<ContentResponse<T>>;
-    cardHeight?: number;
     emptyMessage?: string;
     loadingMessage?: string;
-    imageBaseUrl?: string;
     modalHeader?: string;
 }
 
