@@ -12,7 +12,7 @@ export const Colors = {
     secondaryText: '#687076',
     background: '#fff',
     inactiveBackground: '#aaaaaa',
-    cardBackground: '#aaaaaa',
+    cardBackground: '#fff',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
