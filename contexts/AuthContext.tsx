@@ -24,7 +24,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             try {
                 const refreshToken = await TokenStorage.getRefreshToken();
 
-                console.log("refresh token: ", refreshToken)
                 if (refreshToken) {
                     // Refresh token varsa, yeni access token al
                     const authData = await apiClient.refreshAccessToken(refreshToken);
@@ -35,7 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                         await TokenStorage.saveRefreshToken(authData.refresh_token);
                         setUser(authData.user);
                         setIsAuthenticated(true);
-                        console.log("başarılı",isAuthenticated, user)
                     } else {
                         // Refresh token geçersiz, oturumu temizle
                         await TokenStorage.removeRefreshToken();
@@ -52,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             }
         };
 
-        checkAuth().then(() => console.log(isAuthenticated, user));
+        checkAuth();
     }, []);
 
     // Login fonksiyonu
