@@ -1,5 +1,4 @@
-// components/Toast.tsx - Tamamen yeniden yazılmış versiyon
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -22,6 +21,7 @@ interface DKToastProps {
     onHide?: () => void;
     showIcon?: boolean;
     customIcon?: React.ReactNode;
+    maxLines?: number; // Maksimum satır sayısı
 }
 
 const DKToast: React.FC<DKToastProps> = ({
@@ -32,12 +32,14 @@ const DKToast: React.FC<DKToastProps> = ({
                                              position = 'center',
                                              onHide,
                                              showIcon = true,
-                                             customIcon
+                                             customIcon,
+                                             maxLines = 3 // Varsayılan 3 satır
                                          }) => {
     const colors = useDefaultColor();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
     const translateYAnim = useRef(new Animated.Value(50)).current;
+    const [textHeight, setTextHeight] = useState(0);
 
     const memoizedOnHide = useCallback(() => {
         onHide?.();
@@ -73,6 +75,17 @@ const DKToast: React.FC<DKToastProps> = ({
     };
 
     const typeConfig = getTypeConfig();
+
+    // Mesaj uzunluğuna göre süreyi ayarla
+    const getDynamicDuration = () => {
+        if (duration <= 0) return 0; // Manuel kapatma
+
+        const baseTime = 3000;
+        const wordsCount = message.split(' ').length;
+        const readingTime = Math.max(baseTime, wordsCount * 300); // Kelime başına 300ms
+
+        return Math.min(readingTime, 8000); // Maksimum 8 saniye
+    };
 
     const hideToast = useCallback(() => {
         Animated.parallel([
@@ -119,16 +132,17 @@ const DKToast: React.FC<DKToastProps> = ({
                 })
             ]).start();
 
-            // Otomatik gizleme
-            if (duration > 0) {
+            // Dinamik süre ile otomatik gizleme
+            const dynamicDuration = getDynamicDuration();
+            if (dynamicDuration > 0) {
                 const timer = setTimeout(() => {
                     hideToast();
-                }, duration);
+                }, dynamicDuration);
 
                 return () => clearTimeout(timer);
             }
         }
-    }, [visible, duration, fadeAnim, scaleAnim, translateYAnim, hideToast]);
+    }, [visible, message, fadeAnim, scaleAnim, translateYAnim, hideToast, getDynamicDuration]);
 
     const getPositionStyle = (): StyleProp<ViewStyle> => {
         const screenHeight = Dimensions.get('window').height;
@@ -136,70 +150,93 @@ const DKToast: React.FC<DKToastProps> = ({
         switch (position) {
             case 'top':
                 return {
-                    top: 100,
-                    alignSelf: 'center'
+                    position: 'absolute',
+                    top: 60, // Status bar'dan biraz aşağı
+                    left: 0,
+                    right: 0,
+                    alignItems: 'center'
                 };
             case 'bottom':
                 return {
+                    position: 'absolute',
                     bottom: 100,
-                    alignSelf: 'center'
+                    left: 0,
+                    right: 0,
+                    alignItems: 'center'
                 };
             default: // center
                 return {
-                    top: screenHeight / 2 - 50,
-                    alignSelf: 'center'
+                    position: 'absolute',
+                    top: screenHeight / 2 - (textHeight / 2) - 50, // Metin yüksekliğine göre ortalama
+                    left: 0,
+                    right: 0,
+                    alignItems: 'center'
                 };
         }
     };
 
-    if (!visible) return null;
+    // Metin yüksekliğini ölç
+    const onTextLayout = (event: any) => {
+        const { height } = event.nativeEvent.layout;
+        setTextHeight(height);
+    };
 
+    if (!visible) return null;
     return (
-        <Animated.View
-            style={[
-                styles.container,
-                getPositionStyle(),
-                {
-                    backgroundColor: typeConfig.backgroundColor,
-                    opacity: fadeAnim,
-                    transform: [
-                        { scale: scaleAnim },
-                        { translateY: translateYAnim }
-                    ],
-                }
-            ]}
-            pointerEvents="box-none" // Alt katmandaki elementlere dokunmaya izin ver
-        >
-            <TouchableWithoutFeedback onPress={hideToast}>
-                <View style={styles.content}>
-                    {showIcon && (
-                        <View style={styles.iconContainer}>
-                            {customIcon || (
-                                <MaterialIcons
-                                    name={typeConfig.icon as any}
-                                    size={24}
-                                    color={typeConfig.textColor}
-                                />
-                            )}
-                        </View>
-                    )}
-                    <Text style={[
-                        styles.message,
-                        { color: typeConfig.textColor }
-                    ]}>
-                        {message}
-                    </Text>
-                </View>
-            </TouchableWithoutFeedback>
-        </Animated.View>
+        <View style={[styles.overlay, getPositionStyle()]} pointerEvents="box-none">
+            <Animated.View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: typeConfig.backgroundColor,
+                        opacity: fadeAnim,
+                        transform: [
+                            { scale: scaleAnim },
+                            { translateY: translateYAnim }
+                        ],
+                    }
+                ]}
+            >
+                <TouchableWithoutFeedback onPress={hideToast}>
+                    <View style={styles.content}>
+                        {showIcon && (
+                            <View style={styles.iconContainer}>
+                                {customIcon || (
+                                    <MaterialIcons
+                                        name={typeConfig.icon as any}
+                                        size={24}
+                                        color={typeConfig.textColor}
+                                    />
+                                )}
+                            </View>
+                        )}
+                        <Text
+                            style={[
+                                styles.message,
+                                { color: typeConfig.textColor }
+                            ]}
+                            numberOfLines={maxLines}
+                            onLayout={onTextLayout}
+                        >
+                            {message}
+                        </Text>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Animated.View>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    overlay: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        zIndex: 9999,
+    },
     container: {
-        position: 'absolute',
         maxWidth: Dimensions.get('window').width * 0.9,
-        minWidth: 200,
+        minWidth: Dimensions.get('window').width * 0.7,
         borderRadius: 12,
         elevation: 8,
         shadowColor: '#000',
@@ -209,22 +246,22 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.25,
         shadowRadius: 8,
-        zIndex: 9999, // En üstte görünmesi için
     },
     content: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start', // Üstten hizala
         padding: 16,
+        minHeight: 56, // Minimum yükseklik
     },
     iconContainer: {
         marginRight: 12,
+        marginTop: 2, // Icon'u biraz aşağı kaydır
     },
     message: {
         fontSize: 16,
         fontWeight: '500',
-        textAlign: 'center',
+        textAlign: 'left',
         flex: 1,
-        lineHeight: 20,
     },
 });
 
