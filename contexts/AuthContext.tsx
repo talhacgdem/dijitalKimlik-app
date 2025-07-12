@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             setIsAuthenticated(true);
         } catch (error) {
             console.error('Giriş hatası:', error);
-            toastManager.error('Hatalı kullanıcı adı veya şifre', {
+            toastManager.error('Hatalı kimlik veya şifre', {
                 duration: 10000,
                 position: 'bottom',
             });
