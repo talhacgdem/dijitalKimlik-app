@@ -2,6 +2,7 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import {apiClient} from '@/services/api/client';
 import {TokenStorage} from '@/services/storage';
 import { UserDto } from '@/types/AuthDto';
+import {toastManager} from "@/services/ToastManager";
 
 interface AuthContextType {
     user: UserDto | null;
@@ -62,6 +63,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             setIsAuthenticated(true);
         } catch (error) {
             console.error('Giriş hatası:', error);
+            toastManager.error('Hatalı kullanıcı adı veya şifre', {
+                duration: 10000,
+                position: 'bottom',
+            });
             throw error;
         } finally {
             setIsLoading(false);

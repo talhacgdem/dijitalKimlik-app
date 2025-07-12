@@ -1,9 +1,9 @@
 // src/services/api/client.ts
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
 import { TokenStorage } from '../storage';
-import Toast from 'react-native-toast-message';
 import {LoginResponseDTO} from "@/types/AuthDto";
 import { BASE_API_URL } from './Endpoints';
+import { toastManager } from '../ToastManager';
 
 // API URL'leri // Örnek URL, gerçek URL ile değiştirilmeli
 
@@ -107,12 +107,9 @@ class ApiClient {
     }
 
     // Toast mesajı göster
-    Toast.show({
-      type: 'error',
-      text1: 'Hata',
-      text2: errorMessage,
+    toastManager.error(errorMessage, {
+      duration: 4000,
       position: 'bottom',
-      visibilityTime: 4000,
     });
   }
 

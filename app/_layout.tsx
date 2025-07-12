@@ -2,10 +2,10 @@
 import React, {useEffect} from 'react';
 import {Stack, useRouter, useSegments} from 'expo-router';
 import {AuthProvider, useAuth} from '@/contexts/AuthContext';
-import Toast from 'react-native-toast-message';
 import * as SplashScreen from 'expo-splash-screen';
 import DKLoading from "@/components/dk/Loading";
 import {LoadingProvider, useGlobalLoading} from "@/contexts/LoadingContext";
+import ToastProvider from "@/contexts/ToastContext";
 
 // SplashScreen'in otomatik kapanmasını engelle
 SplashScreen.preventAutoHideAsync();
@@ -60,13 +60,14 @@ function MainContent() {
 
 export default function RootLayout() {
     return (
-        <AuthProvider>
-            <AuthGuard>
-                <LoadingProvider>
-                    <MainContent/>
-                </LoadingProvider>
-            </AuthGuard>
-            <Toast/>
-        </AuthProvider>
+            <ToastProvider>
+                <AuthProvider>
+                    <AuthGuard>
+                        <LoadingProvider>
+                            <MainContent/>
+                        </LoadingProvider>
+                    </AuthGuard>
+                </AuthProvider>
+            </ToastProvider>
     );
 }
