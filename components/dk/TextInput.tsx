@@ -1,7 +1,8 @@
-import {TextInput} from "react-native-paper";
+// components/dk/TextInput.tsx
+import { TextInput } from "react-native-paper";
 import React from "react";
-import {StyleSheet, Text, View} from "react-native";
-import {useDefaultColor} from "@/hooks/useThemeColor";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { useDefaultColor } from "@/hooks/useThemeColor";
 
 export interface DKTextInputProps {
     label: string;
@@ -12,7 +13,7 @@ export interface DKTextInputProps {
     helperText?: string;
     leftIcon?: string;
     rightIcon?: string;
-
+    onRightIconPress?: () => void;
     [key: string]: any;
 }
 
@@ -25,9 +26,27 @@ export default function DKTextInput({
                                         helperText,
                                         leftIcon,
                                         rightIcon,
+                                        onRightIconPress,
                                         ...props
                                     }: DKTextInputProps) {
     const colors = useDefaultColor();
+
+    // Sağ ikon için özel render
+    const renderRightIcon = () => {
+        if (!rightIcon) return undefined;
+
+        if (onRightIconPress) {
+            return (
+                <TextInput.Icon
+                    icon={rightIcon}
+                    onPress={onRightIconPress}
+                    forceTextInputFocus={false}
+                />
+            );
+        }
+
+        return <TextInput.Icon icon={rightIcon} />;
+    };
 
     return (
         <View style={styles.container}>
@@ -45,18 +64,20 @@ export default function DKTextInput({
                 error={error}
                 theme={{
                     colors: {
-                        primary: colors.text,
+                        primary: colors.text || colors.text,
                         error: colors.error || '#F44336',
+                        onSurfaceVariant: colors.secondaryText || '#666',
+                        outline: colors.border || '#E0E0E0',
                     }
                 }}
-                left={leftIcon && <TextInput.Icon icon={leftIcon}/>}
-                right={rightIcon && <TextInput.Icon icon={rightIcon}/>}
+                left={leftIcon ? <TextInput.Icon icon={leftIcon} /> : undefined}
+                right={renderRightIcon()}
                 {...props}
             />
             {helperText && (
                 <Text style={[
                     styles.helperText,
-                    {color: error ? (colors.error || '#F44336') : colors.secondaryText}
+                    { color: error ? (colors.error || '#F44336') : colors.secondaryText }
                 ]}>
                     {helperText}
                 </Text>
