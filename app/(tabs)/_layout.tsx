@@ -10,7 +10,7 @@ export default function TabsLayout() {
     return (
         <Tabs
             screenOptions={{
-                headerTitle: 'Dijital Kimlik App',
+                headerTitle: 'Sağlık HAK SEN',
                 headerStyle: {backgroundColor: colors.background},
                 headerTitleStyle: {color: colors.text},
                 headerRight: () => (

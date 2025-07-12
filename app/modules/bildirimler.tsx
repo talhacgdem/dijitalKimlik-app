@@ -1,10 +1,19 @@
-import {Text} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+// app/modules/AdminHaberler.tsx
+import React from 'react';
+import {NewsItem} from '@/types/ContentTypes';
+import AdminListView from "@/components/dk/AdminListView";
+import {createNews, deleteNews, getNews, updateNews} from "@/services/api/contents";
 
-export default function Bildirimler() {
+export default function AdminHaberler() {
     return (
-        <SafeAreaView edges={['bottom']} style={{flex: 1, padding: 16}}>
-            <Text style={{fontSize: 18}}>Bildirimler Modülü</Text>
-        </SafeAreaView>
+
+        <AdminListView<NewsItem>
+            fetchData={getNews}
+            createItem={createNews}
+            updateItem={updateNews}
+            deleteItem={deleteNews}
+            title="Haber Yönetimi"
+        />
+
     );
 }

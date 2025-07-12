@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
 import { TokenStorage } from '../storage';
 import Toast from 'react-native-toast-message';
 import {LoginResponseDTO} from "@/types/AuthDto";
-import { BASE_URL } from './Endpoints';
+import { BASE_API_URL } from './Endpoints';
 
 // API URL'leri // Örnek URL, gerçek URL ile değiştirilmeli
 
@@ -13,7 +13,7 @@ class ApiClient {
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: BASE_URL,
+      baseURL: BASE_API_URL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -138,10 +138,10 @@ class ApiClient {
     try {
       let data = { refresh_token: refreshToken }
 
-      console.log('Token yenileme isteği gönderiliyor:', `${BASE_URL}/auth/refresh`);
+      console.log('Token yenileme isteği gönderiliyor:', `${BASE_API_URL}/auth/refresh`);
 
       const response = await axios.post<LoginResponseDTO>(
-          `${BASE_URL}/auth/refresh`,
+          `${BASE_API_URL}/auth/refresh`,
           data,
           {
             headers: {
@@ -176,7 +176,7 @@ class ApiClient {
 
   // Login işlemi
   async login(username: string, password: string): Promise<LoginResponseDTO> {
-    const response = await this.axiosInstance.post<LoginResponseDTO>(BASE_URL+'/auth/login', {
+    const response = await this.axiosInstance.post<LoginResponseDTO>(BASE_API_URL+'/auth/login', {
       identity_number:username,
       password:password,
     });
@@ -194,7 +194,7 @@ class ApiClient {
   async logout(): Promise<void> {
     try {
       // Sunucuya çıkış isteği gönder
-      await this.axiosInstance.get(BASE_URL+'/auth/logout');
+      await this.axiosInstance.get(BASE_API_URL+'/auth/logout');
     } catch (error) {
       console.error('Çıkış hatası:', error);
     } finally {
