@@ -19,3 +19,9 @@ export interface ContentResponse<T> {
 
 export type NewsItem = ContentItem
 export type NewsResponse = ContentResponse<NewsItem>
+
+export type AnnoucementItem = ContentItem
+export type AnnoucementResponse = ContentResponse<AnnoucementItem>
+
+export type CampaignItem = ContentItem
+export type CampaignResponse = ContentResponse<CampaignItem>

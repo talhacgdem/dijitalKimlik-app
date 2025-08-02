@@ -1,5 +1,5 @@
 // src/services/api/client.ts
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
+import axios, {isAxiosError, AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
 import { TokenStorage } from '../storage';
 import {LoginResponseDTO} from "@/types/AuthDto";
 import { BASE_API_URL } from './Endpoints';
@@ -156,9 +156,13 @@ class ApiClient {
       return response.data;
     } catch (error) {
       console.error('Token yenileme başarısız:', error);
+      toastManager.error("Oturum süresi doldu. Lütfen tekrar giriş yapın.", {
+        duration: 4000,
+        position: 'bottom',
+      })
 
       // Daha detaylı hata loglaması
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         console.error('Hata detayları:', {
           status: error.response?.status,
           statusText: error.response?.statusText,

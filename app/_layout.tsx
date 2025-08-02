@@ -26,7 +26,7 @@ function AuthGuard({children}: { children: React.ReactNode }) {
     useEffect(() => {
         if (isLoading) return;
 
-        const inAuthGroup = segments[0] !== '(tabs)' && segments[0] !== 'modules';
+        const inAuthGroup = segments[0] !== '(tabs)' && segments[0] !== 'modules' && segments[0] !== 'admin';
 
         // Kullanıcı kimlik doğrulaması yapmadıysa ve auth grubunda değilse
         if (!isAuthenticated && !inAuthGroup) {
@@ -52,6 +52,7 @@ function MainContent() {
                 <Stack.Screen name="(auth)" options={{headerShown: false}}/>
                 <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
                 <Stack.Screen name="modules" options={{headerShown: false}}/>
+                <Stack.Screen name="admin" options={{headerShown: false}}/>
                 <Stack.Screen name="+not-found" options={{title: 'Sayfa Bulunamadı'}}/>
             </Stack>
         </>

@@ -11,6 +11,7 @@ import {
     View
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import {ImagePickerAsset} from 'expo-image-picker';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKModal from "@/components/dk/Modal";
 import DKTextInput from "@/components/dk/TextInput";
@@ -18,11 +19,12 @@ import {useGlobalLoading} from "@/contexts/LoadingContext";
 import {ContentItem, ContentResponse} from "@/types/ContentTypes";
 import DKCard from "@/components/dk/Card";
 import DKPagination from "@/components/dk/Pagination";
+import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 
 interface AdminListViewProps<T extends ContentItem> {
     fetchData: (page: number) => Promise<ContentResponse<T>>;
     createItem: (data: Partial<T>) => Promise<void>;
-    updateItem: (item: T, data: Partial<T>) => Promise<void>;
+    updateItem: (item: T, data: Partial<T>) => Promise<ContentResponse<T>>;
     deleteItem: (item: T) => Promise<void>;
     title?: string;
     loadingMessage?: string;
@@ -53,7 +55,7 @@ export default function AdminListView<T extends ContentItem>({
 
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState<Partial<T>>({});
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<ImagePickerAsset | null>(null);
 
     const loadData = async (page: number = 1, isRefresh: boolean = false) => {
         try {
@@ -86,7 +88,7 @@ export default function AdminListView<T extends ContentItem>({
     };
 
     useEffect(() => {
-        loadData();
+        loadData().then(r => console.log("admin load data", r));
     }, []);
 
     const handlePageChange = (page: number) => {
@@ -103,12 +105,10 @@ export default function AdminListView<T extends ContentItem>({
             setEditMode(true);
             setFormData(item);
             setSelectedItem(item);
-            setSelectedImage(item.image || null);
         } else {
             setEditMode(false);
             setFormData({});
             setSelectedItem(null);
-            setSelectedImage(null);
         }
         setModalVisible(true);
     };
@@ -143,9 +143,11 @@ export default function AdminListView<T extends ContentItem>({
                 return;
             }
 
+            console.log(selectedImage?.base64);
+
             const dataToSave = {
                 ...formData,
-                image: selectedImage,
+                image: selectedImage?.base64,
             };
 
             if (editMode && selectedItem != null) {
@@ -188,16 +190,17 @@ export default function AdminListView<T extends ContentItem>({
             allowsEditing: true,
             quality: 1,
             aspect: [16, 9],
+            base64: true,
         });
 
         if (!result.canceled) {
-            setSelectedImage(result.assets[0].uri);
+            setSelectedImage(result.assets[0]);
         }
     };
 
     if (error && data.length === 0) {
         return (
-            <SafeAreaView edges={['bottom']} style={styles.container}>
+            <SafeAreaView style={styles.container}>
                 <View style={styles.errorContainer}>
                     <Text style={[styles.errorText, {color: colors.error}]}>{error}</Text>
                     <TouchableOpacity
@@ -212,7 +215,7 @@ export default function AdminListView<T extends ContentItem>({
     }
 
     return (
-        <SafeAreaView edges={['bottom']} style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
                 <TouchableOpacity style={[styles.addButton, {backgroundColor: colors.primary}]}
@@ -279,8 +282,13 @@ export default function AdminListView<T extends ContentItem>({
                                   onPress={handlePickImage}>
                     <Text style={{color: 'white'}}>Resim Seç</Text>
                 </TouchableOpacity>
-                {selectedImage && (
-                    <Image source={{uri: selectedImage}} style={styles.imagePreview}/>
+                {(formData.image || selectedImage) && (
+                    <Image
+                        source={{
+                            uri: selectedImage ? selectedImage.uri: `${BASE_STORAGE_URL}${formData.image}`
+                        }}
+                        style={styles.imagePreview}
+                    />
                 )}
                 <View style={styles.modalButtons}>
                     <TouchableOpacity style={[styles.modalButton, {backgroundColor: colors.tint}]}

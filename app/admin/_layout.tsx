@@ -1,4 +1,4 @@
-// app/modules/_layout.tsx
+// app/admin/_layout.tsx
 import { Stack, useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -26,16 +26,8 @@ export default function ModulesLayout() {
             }}
         >
             <Stack.Screen
-                name="kampanyalar"
-                options={{ title: 'Kampanyalar' }}
-            />
-            <Stack.Screen
                 name="haberler"
                 options={{ title: 'Haberler' }}
-            />
-            <Stack.Screen
-                name="duyurular"
-                options={{ title: 'Duyurular' }}
             />
         </Stack>
     );

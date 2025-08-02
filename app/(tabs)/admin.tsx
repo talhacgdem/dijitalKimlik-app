@@ -1,4 +1,3 @@
-// app/(tabs)/index.tsx
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Link} from 'expo-router';
 import {MaterialIcons} from '@expo/vector-icons';
@@ -14,15 +13,13 @@ type MenuItemProps = {
 export default function Index() {
     let colors = useDefaultColor();
     const menuItems: MenuItemProps[] = [
-        {label: 'Duyurular', icon: 'campaign', route: '/modules/duyurular'},
-        {label: 'Haberler', icon: 'article', route: '/modules/haberler'},
-        {label: 'Kampanyalar', icon: 'local-offer', route: '/modules/kampanyalar'}
+        {label: 'Haberler', icon: 'article', route: '/admin/haberler'},
     ];
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
+                <Text style={styles.welcomeText}>Yönetim Paneli</Text>
             </View>
 
             <View style={styles.menuGrid}>

@@ -5,7 +5,7 @@ import {TouchableOpacity} from 'react-native';
 import {useDefaultColor} from "@/hooks/useThemeColor";
 
 export default function TabsLayout() {
-    const {logout} = useAuth();
+    const {logout, user} = useAuth();
     let colors = useDefaultColor();
     return (
         <Tabs
@@ -66,6 +66,20 @@ export default function TabsLayout() {
                     tabBarIcon: ({color}) => (
                         <MaterialIcons
                             name="info"
+                            size={32}
+                            color={color}
+                        />
+                    )
+                }}
+            />
+            <Tabs.Screen
+                name="admin"
+                options={{
+                    title: 'Admin',
+                    href: user?.is_admin ? '/admin' : null,
+                    tabBarIcon: ({color}) => (
+                        <MaterialIcons
+                            name="admin-panel-settings"
                             size={32}
                             color={color}
                         />
