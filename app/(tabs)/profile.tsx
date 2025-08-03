@@ -1,33 +1,81 @@
-import { View, Text, Button, Alert , StyleSheet} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import UserIdCard from "@/components/dk/UserIdCard";
-import React from "react";
+import React, {useState} from "react";
+import {modalStyles} from "@/constants/Styles";
+import DKModal from "@/components/dk/Modal";
+import {useAuth} from "@/contexts/AuthContext";
+import DKTextInput from "@/components/dk/TextInput";
+import {UserDto} from "@/types/AuthDto";
+import DKDatePicker from "@/components/dk/DateInput";
 import {useDefaultColor} from "@/hooks/useThemeColor";
 
 export default function ProfileScreen() {
     const colors = useDefaultColor();
+    const {user} = useAuth();
+    const [formData, setFormData] = useState<Partial<UserDto>>({
+        name: user?.name,
+        job: user?.job,
+        email: user?.email,
+        birthDate: user?.birthDate
+    });
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const handleCloseModal = () => {
+        setModalVisible(false);
+    };
+
+    const updateUser = () => {
+        console.log(formData);
+    }
 
     return (
-        <View style={{ flex: 1, padding: 16}}>
-            <View style={{alignItems: 'center', marginTop:50}}>
-                <UserIdCard
-                    name={"Talha Çiğdem"}
-                    profileImage={"https://avatar.iran.liara.run/public"}
-                    birthDate={"01/01/1990"}
-                    department={"Yazılım Mühendisi"}
-                    idNumber={"12345678901"}
-                ></UserIdCard>
-            </View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16}}>
+            <UserIdCard
+                user={user}
+                editModeHandler={() => {
+                    console.log('profile edit mode');
+                    setModalVisible(true);
+                }}
+            ></UserIdCard>
 
-            <View style={{marginTop: 20}}>
-                <Text style={[styles.title, {color: colors.text}]}>Profil Güncelleme İşlemleri</Text>
+            <DKModal visible={modalVisible} onClose={handleCloseModal} modalHeader={"Profil Bilgilerini Güncelle"}>
 
-            </View>
 
+                <View style={modalStyles.textContent}>
+
+                    <DKTextInput
+                        label="Ad Soyad"
+                        value={formData.name || ''}
+                        onChange={(text) => setFormData({...formData, name: text})}
+                    />
+
+                    <DKDatePicker
+                        label="Doğum Tarihi"
+                        value={formData.birthDate || null}
+                        onChange={(text) => setFormData({...formData, birthDate: text})}
+                    />
+
+                    <DKTextInput
+                        label="Unvan"
+                        value={formData.job || ''}
+                        onChange={(text) => setFormData({...formData, job: text})}
+                    />
+
+                    <DKTextInput
+                        label="Email"
+                        value={formData.email || ''}
+                        onChange={(text) => setFormData({...formData, email: text})}
+                    />
+
+                    <TouchableOpacity style={[styles.modalButton, {backgroundColor: colors.tint}]} onPress={updateUser}>
+                        <Text style={{color: 'white'}}>Güncelle</Text>
+                    </TouchableOpacity>
+                </View>
+            </DKModal>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    header: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16},
-    title: {fontSize: 20, fontWeight: 'bold'},
+    modalButton: {padding: 12, borderRadius: 6},
 });

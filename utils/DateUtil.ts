@@ -10,7 +10,7 @@ export const formatDateString = (dateString: string | undefined) => {
     });
 };
 
-export const formatDate = (date?: Date) => {
+export const formatDate = (date?: Date | null | undefined) => {
     return date ? date.toLocaleDateString('tr-TR', {
         day: '2-digit',
         month: 'long',

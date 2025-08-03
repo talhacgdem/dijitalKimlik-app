@@ -1,20 +1,26 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {UserDto} from "@/types/AuthDto";
+import {formatDate} from "@/utils/DateUtil";
+import {MaterialIcons} from "@expo/vector-icons";
+
+interface UserIdCardProps {
+    editModeHandler: () => void,
+    user: UserDto | null
+}
 
 const UserIdCard = ({
-                        profileImage = 'https://picsum.photos/120/150',
-                        name = 'AHMET YILMAZ',
-                        idNumber = '12345678901',
-                        birthDate = '01/01/1990',
-                        department = 'Yazılım Geliştirici',
-                    }) => {
+                        user,
+                        editModeHandler
+                    }: UserIdCardProps) => {
+
     return (
         <View style={styles.cardContainer}>
             {/* Modern Başlık */}
             <View style={styles.header}>
-                <View style={styles.headerLine} />
+                <View style={styles.headerLine}/>
                 <Text style={styles.headerText}>KİMLİK KARTI</Text>
-                <View style={styles.headerLine} />
+                <View style={styles.headerLine}/>
             </View>
 
             {/* Ana İçerik */}
@@ -22,7 +28,8 @@ const UserIdCard = ({
                 {/* Sol Bölüm - Fotoğraf (2/5) */}
                 <View style={styles.leftSection}>
                     <View style={styles.photoContainer}>
-                        <Image source={{ uri: profileImage }} style={styles.photo} />
+                        <Image source={{uri: user?.avatar || 'https://avatar.iran.liara.run/public'}}
+                               style={styles.photo}/>
                     </View>
                 </View>
 
@@ -30,29 +37,38 @@ const UserIdCard = ({
                 <View style={styles.rightSection}>
                     <View style={styles.infoItem}>
                         <Text style={styles.label}>Ad Soyad</Text>
-                        <Text style={styles.value}>{name}</Text>
+                        <Text style={styles.value}>{user?.name}</Text>
                     </View>
 
                     <View style={styles.infoItem}>
                         <Text style={styles.label}>Kimlik No</Text>
-                        <Text style={styles.value}>{idNumber}</Text>
+                        <Text style={styles.value}>{user?.identityNumber}</Text>
                     </View>
 
                     <View style={styles.infoItem}>
                         <Text style={styles.label}>Doğum Tarihi</Text>
-                        <Text style={styles.value}>{birthDate}</Text>
+                        <Text style={styles.value}>{formatDate(user?.birthDate)}</Text>
                     </View>
 
                     <View style={styles.infoItem}>
                         <Text style={styles.label}>Departman</Text>
-                        <Text style={styles.value}>{department}</Text>
+                        <Text style={styles.value}>{user?.job}</Text>
+                    </View>
+
+                    <View style={styles.infoItem}>
+                        <Text style={styles.label}>Email</Text>
+                        <Text style={styles.value}>{user?.email}</Text>
                     </View>
                 </View>
             </View>
 
+            <TouchableOpacity onPress={editModeHandler} style={styles.editButton}>
+                <MaterialIcons name="edit" size={20} color="white"/>
+            </TouchableOpacity>
+
             {/* Dekoratif Elementler */}
-            <View style={styles.decorativeCircle1} />
-            <View style={styles.decorativeCircle2} />
+            <View style={styles.decorativeCircle1}/>
+            <View style={styles.decorativeCircle2}/>
         </View>
     );
 };
@@ -60,7 +76,7 @@ const UserIdCard = ({
 const styles = StyleSheet.create({
     cardContainer: {
         width: '90%',
-        aspectRatio: 8/5,
+        aspectRatio: 8 / 5,
         backgroundColor: '#FFFFFF',
         borderRadius: 16,
         padding: 18,
@@ -83,7 +99,7 @@ const styles = StyleSheet.create({
     },
     headerLine: {
         height: 2,
-        backgroundColor: '#6366F1',
+        backgroundColor: '#e44e01',
         flex: 1,
         marginHorizontal: 12,
     },
@@ -106,7 +122,7 @@ const styles = StyleSheet.create({
     },
     photoContainer: {
         width: '90%',
-        aspectRatio: 3/4, // 3:4 oranında fotoğraf
+        aspectRatio: 3 / 4, // 3:4 oranında fotoğraf
         borderRadius: 12,
         overflow: 'hidden',
         borderWidth: 2.5,
@@ -148,7 +164,7 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         borderRadius: 35,
-        backgroundColor: '#6366F1',
+        backgroundColor: '#e44e01',
         opacity: 0.05,
         top: -20,
         right: -20,
@@ -158,10 +174,31 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: '#8B5CF6',
+        backgroundColor: '#e44e01',
         opacity: 0.08,
         bottom: -15,
         left: -15,
+    },
+    editButton: {
+        position: 'absolute',
+        top: -5,
+        left: -5,
+        backgroundColor: '#e44e01',
+        paddingLeft: 10,
+        paddingTop: 10,
+        paddingRight: 5,
+        zIndex: 10,
+        borderRadius: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 2,
+            height: 2,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 6,
+        borderWidth: 1,
+        borderColor: '#E67E00', // Daha koyu turuncu border
     },
 });
 
