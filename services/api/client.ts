@@ -218,8 +218,8 @@ class ApiClient {
   }
 
   // Genel PUT isteği
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.axiosInstance.put<T>(url, data, config);
+  async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.axiosInstance.patch<T>(url, data, config);
     return response.data;
   }
 

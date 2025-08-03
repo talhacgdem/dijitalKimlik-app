@@ -1,4 +1,4 @@
-export interface ContentItem {
+export type ContentItem = {
     id: number;
     title: string;
     content: string;
@@ -7,21 +7,28 @@ export interface ContentItem {
     [key: string]: any;
 }
 
-export interface ContentResponse<T> {
+export type NewContentRequest = {
+    title: string;
+    content: string;
+    image?: string;
+    start_date: string,
+    end_date: string,
+}
+
+export type UpdateContentRequest = {
+    title: string;
+    content: string;
+    image?: string;
+    start_date: string,
+    end_date: string,
+}
+
+export type ContentResponse = {
     success: boolean;
-    data: T[];
+    data: ContentItem[];
     meta: {
         current_page: number;
         last_page: number;
     };
     message?: string;
 }
-
-export type NewsItem = ContentItem
-export type NewsResponse = ContentResponse<NewsItem>
-
-export type AnnoucementItem = ContentItem
-export type AnnoucementResponse = ContentResponse<AnnoucementItem>
-
-export type CampaignItem = ContentItem
-export type CampaignResponse = ContentResponse<CampaignItem>

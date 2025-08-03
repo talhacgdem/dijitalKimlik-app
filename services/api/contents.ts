@@ -1,51 +1,40 @@
 import {apiClient} from './client';
-import {AnnoucementResponse, CampaignResponse, NewsItem, NewsResponse} from '@/types/ContentTypes';
+import {ContentResponse, NewContentRequest, UpdateContentRequest} from '@/types/ContentTypes';
 import {BASE_API_URL} from "@/services/api/Endpoints";
 
-//Haberler
-export const getNews = async (page: number = 1): Promise<NewsResponse> => {
-    try {
-        return await apiClient.get<NewsResponse>(`${BASE_API_URL}/news?page=${page}`);
-    } catch (error) {
-        console.error('Haberler yüklenirken hata oluştu:', error);
-        throw error;
+export class ContentApiService {
+    private readonly contentType: string;
+
+    constructor(contentType: string) {
+        this.contentType = contentType;
     }
-};
 
-export const createNews = async () => {
-    console.log("create news api")
-};
-
-export const updateNews = async (item: NewsItem, data: Partial<NewsItem>) => {
-    console.log("update news api")
-    try {
-        return await apiClient.get<NewsResponse>(`${BASE_API_URL}/news`);
-    } catch (error) {
-        console.error('Haberler yüklenirken hata oluştu:', error);
-        throw error;
+    async getContents(page: number = 1): Promise<ContentResponse> {
+        return await apiClient.get<ContentResponse>(`${BASE_API_URL}/${this.contentType}?page=${page}`);
     }
-};
 
-export const deleteNews = async () => {
-    console.log("delete news api")
-};
-
-//Duyurular
-export const getAnnoucements = async (page: number = 1): Promise<AnnoucementResponse> => {
-    try {
-        return await apiClient.get<AnnoucementResponse>(`${BASE_API_URL}/announcements?page=${page}`);
-    } catch (error) {
-        console.error('Duyurular yüklenirken hata oluştu:', error);
-        throw error;
+    async createContent(data: Partial<NewContentRequest>): Promise<ContentResponse> {
+        console.log("create content api", data);
+        return await apiClient.post<ContentResponse>(`${BASE_API_URL}/${this.contentType}`, data);
     }
+
+    async updateContent(id: number, data: Partial<UpdateContentRequest>): Promise<ContentResponse> {
+        console.log("update content api", data);
+        return await apiClient.patch<ContentResponse>(`${BASE_API_URL}/${this.contentType}/${id}`, data);
+    }
+
+    async deleteContent(id: number): Promise<ContentResponse> {
+        console.log("delete content api");
+        return await apiClient.delete<ContentResponse>(`${BASE_API_URL}/${this.contentType}/${id}`);
+    }
+}
+
+// Factory fonksiyonu (isteğe bağlı)
+export const createContentService = (contentType: string) => {
+    return new ContentApiService(contentType);
 };
 
-//Kampanyalar
-export const getCampaigns = async (page: number = 1): Promise<CampaignResponse> => {
-    try {
-        return await apiClient.get<CampaignResponse>(`${BASE_API_URL}/campaigns?page=${page}`);
-    } catch (error) {
-        console.error('Kampanyalar yüklenirken hata oluştu:', error);
-        throw error;
-    }
-};
+// Önceden tanımlanmış servisler (örnek)
+export const newsService = new ContentApiService('news');
+export const annoucenmentService = new ContentApiService('announcements');
+export const campaignService = new ContentApiService('campaigns');

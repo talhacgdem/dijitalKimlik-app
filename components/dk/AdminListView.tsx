@@ -16,37 +16,34 @@ import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKModal from "@/components/dk/Modal";
 import DKTextInput from "@/components/dk/TextInput";
 import {useGlobalLoading} from "@/contexts/LoadingContext";
-import {ContentItem, ContentResponse} from "@/types/ContentTypes";
 import DKCard from "@/components/dk/Card";
 import DKPagination from "@/components/dk/Pagination";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
+import {ContentItem, NewContentRequest, UpdateContentRequest} from "@/types/ContentTypes";
+import {ContentApiService} from "@/services/api/contents";
 
-interface AdminListViewProps<T extends ContentItem> {
-    fetchData: (page: number) => Promise<ContentResponse<T>>;
-    createItem: (data: Partial<T>) => Promise<void>;
-    updateItem: (item: T, data: Partial<T>) => Promise<ContentResponse<T>>;
-    deleteItem: (item: T) => Promise<void>;
+interface AdminListViewProps {
+    contentApiService: ContentApiService;
     title?: string;
     loadingMessage?: string;
     emptyMessage?: string;
+    dates: boolean
 }
 
-export default function AdminListView<T extends ContentItem>({
-                                                                 fetchData,
-                                                                 createItem,
-                                                                 updateItem,
-                                                                 deleteItem,
-                                                                 title = 'Kayıtlar',
-                                                                 loadingMessage = 'Yükleniyor...',
-                                                                 emptyMessage = 'Görüntülenecek öğe bulunamadı'
-                                                             }: AdminListViewProps<T>) {
+export default function AdminListView({
+                                          contentApiService,
+                                          title = 'Kayıtlar',
+                                          loadingMessage = 'Yükleniyor...',
+                                          emptyMessage = 'Görüntülenecek öğe bulunamadı',
+                                          dates
+                                      }: AdminListViewProps) {
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
 
-    const [data, setData] = useState<T[]>([]);
+    const [data, setData] = useState<ContentItem[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedItem, setSelectedItem] = useState<T | null>(null);
+    const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [pagination, setPagination] = useState({
         currentPage: 1,
@@ -54,7 +51,7 @@ export default function AdminListView<T extends ContentItem>({
     });
 
     const [editMode, setEditMode] = useState(false);
-    const [formData, setFormData] = useState<Partial<T>>({});
+    const [formData, setFormData] = useState<Partial<NewContentRequest & UpdateContentRequest>>({});
     const [selectedImage, setSelectedImage] = useState<ImagePickerAsset | null>(null);
 
     const loadData = async (page: number = 1, isRefresh: boolean = false) => {
@@ -65,7 +62,7 @@ export default function AdminListView<T extends ContentItem>({
 
             setError(null);
 
-            const response = await fetchData(page);
+            const response = await contentApiService.getContents(page);
 
             if (response.success) {
                 setData(response.data);
@@ -100,21 +97,36 @@ export default function AdminListView<T extends ContentItem>({
         loadData(1, true);
     };
 
-    const handleOpenModal = (item?: T) => {
+    const handleOpenModal = (item?: ContentItem) => {
         if (item) {
             setEditMode(true);
-            setFormData(item);
+            setFormData({
+                title: item.title,
+                content: item.content,
+                image: item.image,
+                start_date: item.start_date || '',
+                end_date: item.end_date || '',
+            });
             setSelectedItem(item);
         } else {
             setEditMode(false);
-            setFormData({});
+            setFormData({
+                title: '',
+                content: '',
+                image: '',
+                start_date: '',
+                end_date: '',
+            });
             setSelectedItem(null);
         }
+        setSelectedImage(null);
         setModalVisible(true);
     };
 
     const handleCloseModal = () => {
-        if (formData.title || formData.content || selectedImage) {
+        const hasChanges = formData.title || formData.content || selectedImage;
+
+        if (hasChanges) {
             Alert.alert(
                 'Uyarı',
                 'Kaydedilmemiş değişiklikler var. Çıkmak istediğinizden emin misiniz?',
@@ -139,39 +151,48 @@ export default function AdminListView<T extends ContentItem>({
     const handleSave = async () => {
         try {
             if (!formData.title || !formData.content) {
-                Alert.alert('Hata', 'Başlık ve İçerik alanları boş bırakılamaz!');
+                Alert.alert('Hata', 'Başlık, İçerik alanları boş bırakılamaz!');
                 return;
             }
 
-            console.log(selectedImage?.base64);
-
             const dataToSave = {
-                ...formData,
-                image: selectedImage?.base64,
+                title: formData.title,
+                content: formData.content,
+                start_date: formData.start_date,
+                end_date: formData.end_date,
+                image: selectedImage?.base64 || formData.image,
             };
 
             if (editMode && selectedItem != null) {
-                await updateItem(selectedItem, dataToSave);
+                const updateData: Partial<UpdateContentRequest> = dataToSave;
+                await contentApiService.updateContent(selectedItem.id, updateData);
             } else {
-                await createItem(dataToSave);
+                const createData: Partial<NewContentRequest> = dataToSave;
+                await contentApiService.createContent(createData);
             }
 
             resetModal();
             await loadData();
         } catch (e) {
             Alert.alert('Hata', 'Kaydetme sırasında bir sorun oluştu.');
+            console.error(e);
         }
     };
 
-    const handleDelete = async (item: T) => {
+    const handleDelete = async (item: ContentItem) => {
         Alert.alert('Sil', 'Bu kaydı silmek istediğinize emin misiniz?', [
             {text: 'İptal', style: 'cancel'},
             {
                 text: 'Sil',
                 style: 'destructive',
                 onPress: async () => {
-                    await deleteItem(item);
-                    await loadData();
+                    try {
+                        await contentApiService.deleteContent(item.id);
+                        await loadData();
+                    } catch (e) {
+                        Alert.alert('Hata', 'Silme sırasında bir sorun oluştu.');
+                        console.error(e);
+                    }
                 }
             }
         ]);
@@ -224,7 +245,6 @@ export default function AdminListView<T extends ContentItem>({
                 </TouchableOpacity>
             </View>
 
-
             <FlatList
                 data={data}
                 renderItem={({item}) => (
@@ -269,15 +289,31 @@ export default function AdminListView<T extends ContentItem>({
                      onClose={handleCloseModal}>
                 <DKTextInput
                     label="Başlık"
-                    value={formData.title?.toString() || ''}
+                    value={formData.title || ''}
                     onChange={(text) => setFormData({...formData, title: text})}
                 />
                 <DKTextInput
                     label="İçerik"
                     multiline={true}
-                    value={formData.content?.toString() || ''}
+                    value={formData.content || ''}
                     onChange={(text) => setFormData({...formData, content: text})}
                 />
+                {dates && (
+                    <>
+                        <DKTextInput
+                            label="Başlangıç Tarihi (YYYY-MM-DD)"
+                            value={formData.start_date || ''}
+                            onChange={(text) => setFormData({...formData, start_date: text})}
+                            placeholder="2024-01-01"
+                        />
+                        <DKTextInput
+                            label="Bitiş Tarihi (YYYY-MM-DD)"
+                            value={formData.end_date || ''}
+                            onChange={(text) => setFormData({...formData, end_date: text})}
+                            placeholder="2024-12-31"
+                        />
+                    </>
+                )}
                 <TouchableOpacity style={[styles.imagePickerButton, {backgroundColor: colors.tint}]}
                                   onPress={handlePickImage}>
                     <Text style={{color: 'white'}}>Resim Seç</Text>
@@ -285,7 +321,7 @@ export default function AdminListView<T extends ContentItem>({
                 {(formData.image || selectedImage) && (
                     <Image
                         source={{
-                            uri: selectedImage ? selectedImage.uri: `${BASE_STORAGE_URL}${formData.image}`
+                            uri: selectedImage ? selectedImage.uri : `${BASE_STORAGE_URL}${formData.image}`
                         }}
                         style={styles.imagePreview}
                     />
@@ -297,9 +333,9 @@ export default function AdminListView<T extends ContentItem>({
                     </TouchableOpacity>
                 </View>
             </DKModal>
-
         </SafeAreaView>
-    );
+    )
+        ;
 }
 
 const styles = StyleSheet.create({

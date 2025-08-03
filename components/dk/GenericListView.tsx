@@ -10,29 +10,29 @@ import DKCard from "@/components/dk/Card";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 import DKPagination from "@/components/dk/Pagination";
 import {modalStyles} from "@/constants/Styles";
-import {ContentItem, ContentResponse} from "@/types/ContentTypes";
+import {ContentItem} from "@/types/ContentTypes";
+import {ContentApiService} from "@/services/api/contents";
 
 
-
-interface GenericListViewProps<T extends ContentItem> {
-    fetchData: (page: number) => Promise<ContentResponse<T>>;
+interface GenericListViewProps {
+    contentApiService: ContentApiService;
     emptyMessage?: string;
     loadingMessage?: string;
     modalHeader?: string;
 }
 
-export default function GenericListView<T extends ContentItem>({
-                                                                   fetchData,
-                                                                   emptyMessage = 'Görüntülenecek öğe bulunamadı',
-                                                                   loadingMessage = 'Yükleniyor...'
-                                                               }: GenericListViewProps<T>) {
+export default function GenericListView({
+                                            contentApiService,
+                                            emptyMessage = 'Görüntülenecek öğe bulunamadı',
+                                            loadingMessage = 'Yükleniyor...'
+                                        }: GenericListViewProps) {
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
 
-    const [data, setData] = useState<T[]>([]);
+    const [data, setData] = useState<ContentItem[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedItem, setSelectedItem] = useState<T | null>(null);
+    const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [pagination, setPagination] = useState({
         currentPage: 1,
@@ -48,7 +48,7 @@ export default function GenericListView<T extends ContentItem>({
 
             setError(null);
 
-            const response = await fetchData(page);
+            const response = await contentApiService.getContents(page);
 
             if (response.success) {
                 setData(response.data);
@@ -79,7 +79,7 @@ export default function GenericListView<T extends ContentItem>({
         loadData(1, true);
     };
 
-    const handleItemPress = (item: T) => {
+    const handleItemPress = (item: ContentItem) => {
         setSelectedItem(item);
         setModalVisible(true);
     };
