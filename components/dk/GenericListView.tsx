@@ -4,7 +4,7 @@ import {FlatList, Image, RefreshControl, StyleSheet, Text, TouchableOpacity, Vie
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKModal from "@/components/dk/Modal";
-import {formatDate} from "@/utils/DateUtil";
+import {formatDateString} from "@/utils/DateUtil";
 import {useGlobalLoading} from "@/contexts/LoadingContext";
 import DKCard from "@/components/dk/Card";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
@@ -161,7 +161,7 @@ export default function GenericListView({
                         {selectedItem?.title}
                     </Text>
                     <Text style={[modalStyles.date, {color: colors.secondaryText}]}>
-                        {formatDate(selectedItem?.created_at)}
+                        {formatDateString(selectedItem?.created_at)}
                     </Text>
 
                     <View>

@@ -1,6 +1,6 @@
 import {useDefaultColor} from "@/hooks/useThemeColor";
 import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {formatDate} from "@/utils/DateUtil";
+import {formatDateString} from "@/utils/DateUtil";
 import {truncateContent} from "@/utils/StringUtils";
 import React from "react";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
@@ -43,7 +43,7 @@ export default function DKCard({title, content, image, date, onPress, cardHeight
                     {title}
                 </Text>
                 <Text style={[styles.date, {color: colors.primary}]}>
-                    {formatDate(date)}
+                    {formatDateString(date)}
                 </Text>
                 <Text style={[styles.content, {color: colors.text}]} numberOfLines={3}>
                     {truncateContent(content)}
