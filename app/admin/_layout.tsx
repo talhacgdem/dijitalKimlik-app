@@ -26,6 +26,10 @@ export default function ModulesLayout() {
             }}
         >
             <Stack.Screen
+                name="kullanicilar"
+                options={{ title: 'Kullanıcılar' }}
+            />
+            <Stack.Screen
                 name="haberler"
                 options={{ title: 'Haberler' }}
             />
