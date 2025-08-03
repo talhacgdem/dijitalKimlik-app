@@ -19,4 +19,8 @@ export interface UserDto {
     is_deleted: number;
     created_at: Date;
     updated_at: Date;
+    avatar: string;
+    job:string;
+    birthDate:Date|null;
+    email:string;
 }
