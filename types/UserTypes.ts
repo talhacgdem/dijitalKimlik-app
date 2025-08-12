@@ -1,22 +1,20 @@
+import {UserDto} from "@/types/AuthDto";
 
 export interface NewUserRequest {
     identityNumber: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
+    name: string;
+    phone: string | undefined | null;
     email: string;
-    profession: string;
-    profileImage?: string;
+    job: string;
+    avatar?: string;
 }
 
 export interface UpdateUserRequest {
-    identityNumber?: string;
-    firstName?: string;
-    lastName?: string;
+    name?: string;
     phone?: string;
     email?: string;
-    profession?: string;
-    profileImage?: string;
+    job?: string;
+    avatar?: string;
 }
 
 export interface UserApiResponse {

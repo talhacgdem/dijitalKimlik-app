@@ -1,9 +1,11 @@
 import {apiClient} from "@/services/api/client";
 import {BASE_API_URL} from "@/services/api/Endpoints";
+import {NewUserRequest, UpdateUserRequest, UserApiResponse} from "@/types/UserTypes";
 
 export class UserApiService {
 
     async getUsers(page: number = 1): Promise<UserApiResponse> {
+        console.log("get users api");
         return await apiClient.get<UserApiResponse>(`${BASE_API_URL}/users?page=${page}`);
     }
 
@@ -14,8 +16,8 @@ export class UserApiService {
     }
 
     async updateUser(id: number, userData: Partial<UpdateUserRequest>): Promise<void> {
-        console.log("update users api", data);
-        return await apiClient.patch<void>(`${BASE_API_URL}/users/${id}`, data);
+        console.log("update users api", userData);
+        return await apiClient.patch<void>(`${BASE_API_URL}/users/${id}`, userData);
     }
 
     async deleteUser(id: number): Promise<void> {

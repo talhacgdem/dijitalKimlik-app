@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { UserDto } from '@/types/UserTypes';
 import { BASE_STORAGE_URL } from '@/services/api/Endpoints';
 import { useDefaultColor } from '@/hooks/useThemeColor';
+import { UserDto } from '@/types/AuthDto';
 
 interface UserCardProps {
     user: UserDto;
@@ -26,9 +26,9 @@ export default function DKUserCard({ user, onPress, controlItems }: UserCardProp
             <View style={styles.imageContainer}>
                 <Image
                     source={
-                        user.profileImage
-                            ? { uri: `${BASE_STORAGE_URL}${user.profileImage}` }
-                            : require('@/assets/images/default-avatar.png')
+                        user.avatar
+                            ? { uri: `${BASE_STORAGE_URL}${user.avatar}` }
+                            : require('@/assets/images/splash-icon.png')
                     }
                     style={styles.profileImage}
                     resizeMode="cover"
@@ -39,7 +39,7 @@ export default function DKUserCard({ user, onPress, controlItems }: UserCardProp
             <View style={styles.infoContainer}>
                 <View style={styles.headerRow}>
                     <Text style={[styles.fullName, { color: colors.text }]}>
-                        {user.firstName} {user.lastName}
+                        {user.name}
                     </Text>
 
                     {controlItems && (
@@ -67,7 +67,7 @@ export default function DKUserCard({ user, onPress, controlItems }: UserCardProp
 
                 <View style={styles.infoRow}>
                     <Text style={[styles.label, { color: colors.secondaryText }]}>Telefon:</Text>
-                    <Text style={[styles.value, { color: colors.text }]}>{user.phone}</Text>
+                    <Text style={[styles.value, { color: colors.text }]}>telefon</Text>
                 </View>
 
                 <View style={styles.infoRow}>
@@ -79,7 +79,7 @@ export default function DKUserCard({ user, onPress, controlItems }: UserCardProp
 
                 <View style={styles.infoRow}>
                     <Text style={[styles.label, { color: colors.secondaryText }]}>Meslek:</Text>
-                    <Text style={[styles.value, { color: colors.text }]}>{user.profession}</Text>
+                    <Text style={[styles.value, { color: colors.text }]}>{user.job}</Text>
                 </View>
             </View>
         </TouchableOpacity>
