@@ -115,6 +115,7 @@ export default function AdminUserListView({
                 email: null,
                 job: null,
                 image: null,
+                password:null
             });
             setSelectedItem(null);
         }
@@ -148,7 +149,7 @@ export default function AdminUserListView({
     };
 
     const handleSave = async () => {
-        try {
+
             const dataToSave = {
                 identity_number: formData.identity_number,
                 name: formData.name,
@@ -156,6 +157,7 @@ export default function AdminUserListView({
                 email: formData.email,
                 job: formData.job,
                 image: selectedImage?.base64 || formData.image,
+                password: formData.password
             };
 
             if (editMode && selectedItem != null) {
@@ -166,12 +168,8 @@ export default function AdminUserListView({
                 await userApiService.createUser(createData);
             }
 
-            // resetModal();
-            // await loadData();
-        } catch (e) {
-            Alert.alert('Hata', 'Kaydetme sırasında bir sorun oluştu.');
-            console.error(e);
-        }
+            resetModal();
+            await loadData();
     };
 
     const handleDelete = async (item: UserDto) => {

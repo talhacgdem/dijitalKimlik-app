@@ -30,8 +30,16 @@ export default function ModulesLayout() {
                 options={{ title: 'Kullanıcılar' }}
             />
             <Stack.Screen
+                name="duyurular"
+                options={{ title: 'Duyurular' }}
+            />
+            <Stack.Screen
                 name="haberler"
                 options={{ title: 'Haberler' }}
+            />
+            <Stack.Screen
+                name="kampanyalar"
+                options={{ title: 'Kampanyalar' }}
             />
         </Stack>
     );

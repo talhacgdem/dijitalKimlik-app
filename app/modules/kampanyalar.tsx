@@ -6,9 +6,9 @@ export default function Kampanyalar() {
     return (
         <GenericListView
             contentApiService={campaignService}
-            emptyMessage="Görüntülenecek duyuru bulunamadı"
-            loadingMessage="Duyurular yükleniyor..."
-            modalHeader="Duyuru Detay"
+            emptyMessage="Görüntülenecek Kampanya bulunamadı"
+            loadingMessage="Kampanyalar yükleniyor..."
+            modalHeader="Kampanya Detay"
         />
     );
 }
