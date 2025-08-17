@@ -1,14 +1,13 @@
-// app/modules/AdminKullanicilar.tsx
 import React from 'react';
-import AdminListView from "@/components/dk/AdminListView";
-import {newsService} from "@/services/api/contents";
+import AdminUserListView from "@/components/dk/AdminUserListView";
+import {usersService} from "@/services/api/user";
 
 export default function AdminKullanicilar() {
     return (
-        <AdminListView
-            contentApiService={newsService}
+        <AdminUserListView
+
+            userApiService={usersService}
             title="Kullanıcı Yönetimi"
-            dates={false}
         />
     );
 }

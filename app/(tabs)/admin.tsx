@@ -13,6 +13,7 @@ type MenuItemProps = {
 export default function Index() {
     let colors = useDefaultColor();
     const menuItems: MenuItemProps[] = [
+        {label: 'Kullanıcılar', icon: 'people', route: '/admin/kullanicilar'},
         {label: 'Haberler', icon: 'article', route: '/admin/haberler'},
     ];
 

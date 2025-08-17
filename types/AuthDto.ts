@@ -14,12 +14,12 @@ export interface LoginResponseDTO {
 export interface UserDto {
     id: number;
     name: string;
-    identityNumber: string;
+    identity_number: string;
     is_admin: boolean;
     is_deleted: number;
     created_at: Date;
     updated_at: Date;
-    avatar: string;
+    image: string;
     job:string;
     birthDate:Date|null;
     email:string;

@@ -28,7 +28,7 @@ const UserIdCard = ({
                 {/* Sol Bölüm - Fotoğraf (2/5) */}
                 <View style={styles.leftSection}>
                     <View style={styles.photoContainer}>
-                        <Image source={{uri: user?.avatar || 'https://avatar.iran.liara.run/public'}}
+                        <Image source={{uri: user?.image || 'https://avatar.iran.liara.run/public'}}
                                style={styles.photo}/>
                     </View>
                 </View>
@@ -42,7 +42,7 @@ const UserIdCard = ({
 
                     <View style={styles.infoItem}>
                         <Text style={styles.label}>Kimlik No</Text>
-                        <Text style={styles.value}>{user?.identityNumber}</Text>
+                        <Text style={styles.value}>{user?.identity_number}</Text>
                     </View>
 
                     <View style={styles.infoItem}>
