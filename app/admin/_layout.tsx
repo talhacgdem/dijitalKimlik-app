@@ -8,12 +8,7 @@ export default function ModulesLayout() {
     const router = useRouter();
     const colors = useDefaultColor();
 
-    const {id, name, hasImage, icon} = useLocalSearchParams<{
-        id: string,
-        name: string,
-        hasImage: string,
-        icon: keyof typeof MaterialIcons.glyphMap
-    }>();
+    const {name} = useLocalSearchParams<{ name: string }>();
 
     return (
         <Stack
@@ -29,7 +24,7 @@ export default function ModulesLayout() {
                         <MaterialIcons name="arrow-back" size={24} color={colors.text}/>
                     </TouchableOpacity>
                 ),
-                headerShown: true, // Header'ı göster
+                headerShown: true,
             }}
         >
             <Stack.Screen
