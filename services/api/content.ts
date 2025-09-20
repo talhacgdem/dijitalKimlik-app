@@ -63,8 +63,7 @@ export class ContentService {
     async getContents(page: number = 1): Promise<ContentResponse> {
         const url = `${BASE_API_URL}/content?page=${page}?type=${this.contentTypeId}`;
         console.log("content url", url);
-        let a = await apiClient.get<ContentResponse>(`${BASE_API_URL}/content?page=${page}&type=${this.contentTypeId}`);
-        return a;
+        return await apiClient.get<ContentResponse>(`${BASE_API_URL}/content?page=${page}&type=${this.contentTypeId}`);
     }
 
     async createContent(data: Partial<NewContentRequest>): Promise<ContentResponse> {
@@ -77,7 +76,7 @@ export class ContentService {
         return await apiClient.patch<ContentResponse>(`${BASE_API_URL}/content/${id}?type=${this.contentTypeId}`, data);
     }
 
-    async deleteContentType(id: number): Promise<ContentResponse> {
+    async deleteContent(id: number): Promise<ContentResponse> {
         console.log("delete content api");
         return await apiClient.delete<ContentResponse>(`${BASE_API_URL}/content/${id}?type=${this.contentTypeId}`);
     }

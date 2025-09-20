@@ -1,4 +1,4 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Link} from 'expo-router';
 import {ContentType, ContentTypeService} from "@/services/api/content";
 import React, {useEffect, useState} from "react";
@@ -60,7 +60,10 @@ export default function Index() {
                 <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
             </View>
 
-            <View style={styles.menuGrid}>
+            <ScrollView
+                contentContainerStyle={styles.menuGrid}
+                showsVerticalScrollIndicator={false}
+            >
                 {data.map((item, index) => (
                     <Link key={index} href={{
                         pathname: '/modules',
@@ -79,7 +82,7 @@ export default function Index() {
                         </TouchableOpacity>
                     </Link>
                 ))}
-            </View>
+            </ScrollView>
         </View>
     );
 }

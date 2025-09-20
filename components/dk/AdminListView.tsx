@@ -20,14 +20,15 @@ import DKCard from "@/components/dk/Card";
 import DKPagination from "@/components/dk/Pagination";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 import {ContentItem, NewContentRequest, UpdateContentRequest} from "@/types/ContentTypes";
-import {ContentApiService} from "@/services/api/contents";
+import {ContentService} from "@/services/api/content";
 
 interface AdminListViewProps {
-    contentApiService: ContentApiService;
+    contentApiService: ContentService;
     title?: string;
     loadingMessage?: string;
     emptyMessage?: string;
-    dates: boolean
+    dates?: boolean;
+    hasImage: boolean;
 }
 
 export default function AdminListView({
@@ -35,7 +36,8 @@ export default function AdminListView({
                                           title = 'Kayıtlar',
                                           loadingMessage = 'Yükleniyor...',
                                           emptyMessage = 'Görüntülenecek öğe bulunamadı',
-                                          dates
+                                          dates = false,
+                                          hasImage
                                       }: AdminListViewProps) {
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
