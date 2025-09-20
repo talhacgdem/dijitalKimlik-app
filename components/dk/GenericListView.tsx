@@ -11,20 +11,23 @@ import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 import DKPagination from "@/components/dk/Pagination";
 import {modalStyles} from "@/constants/Styles";
 import {ContentItem} from "@/types/ContentTypes";
-import {ContentApiService} from "@/services/api/contents";
+import {ContentService} from "@/services/api/content";
+import DKDivider from "@/components/dk/Divider";
 
 
 interface GenericListViewProps {
-    contentApiService: ContentApiService;
+    contentApiService: ContentService;
     emptyMessage?: string;
     loadingMessage?: string;
     modalHeader?: string;
+    hasImage: boolean;
 }
 
 export default function GenericListView({
                                             contentApiService,
                                             emptyMessage = 'Görüntülenecek öğe bulunamadı',
-                                            loadingMessage = 'Yükleniyor...'
+                                            loadingMessage = 'Yükleniyor...',
+                                            hasImage = false
                                         }: GenericListViewProps) {
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
@@ -110,19 +113,37 @@ export default function GenericListView({
         );
     }
 
+    const renderContentItem = (item: ContentItem, hasImage: boolean) => {
+        if (hasImage) {
+            return (
+                <DKCard
+                    title={item.title}
+                    content={item.content}
+                    image={item.image}
+                    date={item.created_at}
+                    onPress={() => handleItemPress(item)}
+                />
+            )
+        } else {
+            return (
+                <View style={styles.itemContainer}>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <TouchableOpacity
+                        style={styles.detailButton}
+                        onPress={() => handleItemPress(item)}
+                    >
+                        <Text style={styles.buttonText}>Detay</Text>
+                    </TouchableOpacity>
+                </View>
+            )
+        }
+    }
+
     return (
         <SafeAreaView edges={['bottom']} style={styles.container}>
             <FlatList
                 data={data}
-                renderItem={({item}) => (
-                    <DKCard
-                        title={item.title}
-                        content={item.content}
-                        image={item.image}
-                        date={item.created_at}
-                        onPress={() => handleItemPress(item)}
-                    />
-                )}
+                renderItem={({item}) => renderContentItem(item, hasImage)}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={[styles.listContent, {paddingBottom: 100}]}
                 refreshControl={
@@ -148,7 +169,7 @@ export default function GenericListView({
             )}
 
             <DKModal visible={modalVisible} onClose={handleCloseModal}>
-                {selectedItem?.image && (
+                {hasImage && (
                     <Image
                         source={{uri: `${BASE_STORAGE_URL}${selectedItem?.image}`}}
                         style={modalStyles.modalImage}
@@ -163,6 +184,8 @@ export default function GenericListView({
                     <Text style={[modalStyles.date, {color: colors.secondaryText}]}>
                         {formatDateString(selectedItem?.created_at)}
                     </Text>
+
+                    <DKDivider/>
 
                     <View>
                         <Text style={{color: colors.text, fontSize: 16, lineHeight: 24, marginBottom: 16}}>
@@ -207,5 +230,32 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         padding: 24,
         fontSize: 16,
-    }
+    },
+    itemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#f9f9f9',
+        padding: 12,
+        marginBottom: 8,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    title: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    detailButton: {
+        backgroundColor: '#e44e01',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 6,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
 });

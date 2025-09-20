@@ -14,7 +14,7 @@ export default function Index() {
     let colors = useDefaultColor();
     const menuItems: MenuItemProps[] = [
         {label: 'Kullanıcılar', icon: 'people', route: '/admin/kullanicilar'},
-        {label: 'Duyurular', icon: 'campaign', route: '/admin/duyurular'},
+        {label: 'Index', icon: 'campaign', route: '/admin/duyurular'},
         {label: 'Haberler', icon: 'article', route: '/admin/haberler'},
         {label: 'Kampanyalar', icon: 'local-offer', route: '/admin/kampanyalar'},
     ];

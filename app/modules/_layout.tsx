@@ -1,42 +1,35 @@
-// app/modules/_layout.tsx
-import { Stack, useRouter } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useDefaultColor } from '@/hooks/useThemeColor';
+import {useLocalSearchParams} from 'expo-router';
+import {createContentService} from "@/services/api/content";
+import {SafeAreaView} from "react-native-safe-area-context";
+import DKHeader from "@/components/dk/Header";
+import GenericListView from "@/components/dk/GenericListView";
+import React from "react";
+import {MaterialIcons} from "@expo/vector-icons";
 
-export default function ModulesLayout() {
-    const router = useRouter();
-    const colors = useDefaultColor();
+export default function ContentPage() {
+    const {id, name, hasImage, icon} = useLocalSearchParams<{
+        id: string,
+        name: string,
+        hasImage: string,
+        icon: keyof typeof MaterialIcons.glyphMap
+    }>();
+
+    const service = createContentService(id, name);
 
     return (
-        <Stack
-            screenOptions={{
-                headerStyle: { backgroundColor: colors.background },
-                headerTitleStyle: { color: colors.text },
-                headerTintColor: colors.text, // Geri butonunun rengi
-                headerLeft: () => (
-                    <TouchableOpacity
-                        onPress={() => router.back()}
-                        style={{ marginLeft: 16, marginRight: 16 }}
-                    >
-                        <MaterialIcons name="arrow-back" size={24} color={colors.text} />
-                    </TouchableOpacity>
-                ),
-                headerShown: true, // Header'ı göster
-            }}
-        >
-            <Stack.Screen
-                name="kampanyalar"
-                options={{ title: 'Kampanyalar' }}
+        <SafeAreaView style={{flex: 1}}>
+            <DKHeader
+                title={name}
+                icon={icon}
             />
-            <Stack.Screen
-                name="haberler"
-                options={{ title: 'Haberler' }}
+
+            <GenericListView
+                contentApiService={service}
+                emptyMessage="Görüntülenecek kayıt bulunamadı"
+                loadingMessage={name + " yükleniyor..."}
+                modalHeader="Detay"
+                hasImage={hasImage === "1"}
             />
-            <Stack.Screen
-                name="duyurular"
-                options={{ title: 'Duyurular' }}
-            />
-        </Stack>
+        </SafeAreaView>
     );
 }

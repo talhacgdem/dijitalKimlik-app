@@ -25,7 +25,7 @@ export default function TabsLayout() {
                     height: 70,
                     paddingBottom: 20,
                     paddingTop: 10,
-                    backgroundColor: colors.background, // Tab bar arka plan rengi
+                    backgroundColor: colors.background,
                 },
                 tabBarIconStyle: {
                     width: 40,

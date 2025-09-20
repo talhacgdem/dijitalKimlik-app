@@ -31,7 +31,7 @@ export default function ModulesLayout() {
             />
             <Stack.Screen
                 name="duyurular"
-                options={{ title: 'Duyurular' }}
+                options={{ title: 'Id' }}
             />
             <Stack.Screen
                 name="haberler"

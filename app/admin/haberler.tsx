@@ -1,4 +1,3 @@
-// app/modules/AdminHaberler.tsx
 import React from 'react';
 import AdminListView from "@/components/dk/AdminListView";
 import {newsService} from "@/services/api/contents";
