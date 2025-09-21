@@ -12,7 +12,7 @@ export class ContentTypeService {
         return contentTypes;
     }
 
-    static async createContentType(data: Partial<NewContentRequest>): Promise<ContentResponse> {
+    static async createContentType(data: Partial<NewContentTypeRequest>): Promise<ContentResponse> {
         console.log("create content api", data);
         let response = await apiClient.post<ContentResponse>(`${BASE_API_URL}/contentType`, data);
         if (response.success) {
@@ -21,7 +21,7 @@ export class ContentTypeService {
         return response;
     }
 
-    static async updateContentType(id: number, data: Partial<UpdateContentRequest>): Promise<ContentResponse> {
+    static async updateContentType(id: number, data: Partial<NewContentTypeRequest>): Promise<ContentResponse> {
         console.log("update content api", data);
         let response = await apiClient.patch<ContentResponse>(`${BASE_API_URL}/contentType/${id}`, data);
         if (response.success) {
@@ -102,6 +102,12 @@ export type NewContentRequest = {
     image?: string;
     start_date: string,
     end_date: string,
+}
+
+export type NewContentTypeRequest = {
+    name: string;
+    icon: string;
+    hasImage: boolean;
 }
 
 export type UpdateContentRequest = {

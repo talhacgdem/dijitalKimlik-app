@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Link} from 'expo-router';
 import {MaterialIcons} from '@expo/vector-icons';
 import {useDefaultColor} from "@/hooks/useThemeColor";

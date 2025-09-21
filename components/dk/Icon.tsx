@@ -5,9 +5,10 @@ export interface DKIconProps {
     name: string;
     size?: number;
     color?: string;
+    [key: string]: any;
 }
 
-export default function DKIcon({name, size = 48, color = ''}: DKIconProps) {
+export default function DKIcon({name, size = 48, color = '', ...props}: DKIconProps) {
 
     const colors = useDefaultColor();
 
@@ -16,5 +17,5 @@ export default function DKIcon({name, size = 48, color = ''}: DKIconProps) {
         iconName = name as keyof typeof MaterialIcons.glyphMap;
     }
 
-    return (<MaterialIcons name={iconName} size={size} color={color || colors.primary}/>);
+    return (<MaterialIcons name={iconName} size={size} color={color || colors.primary} {...props}/>);
 }
