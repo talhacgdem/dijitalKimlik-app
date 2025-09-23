@@ -25,7 +25,7 @@ function DKButton({type, label, icon, onPress, style, colorBackground, colorText
         },
         secondary: {
             backgroundColor: ColorsCustom.inactiveBackground,
-            color: ColorsCustom.primary
+            color: ColorsCustom.white
         },
         warning: {
             backgroundColor: ColorsCustom.warning,

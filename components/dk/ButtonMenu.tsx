@@ -13,7 +13,7 @@ interface DKButtonMenuProps {
     params?: Record<string, string>;
 }
 
-function DKButtonMenu({key, label, icon, pathname, params}: DKButtonMenuProps) {
+function DKButtonMenu({label, icon, pathname, params}: DKButtonMenuProps) {
     const router = useRouter();
 
     const handlePress = () => {
@@ -25,7 +25,6 @@ function DKButtonMenu({key, label, icon, pathname, params}: DKButtonMenuProps) {
 
     return (
         <TouchableOpacity
-            key={key}
             onPress={handlePress}
             style={{
                 width: '48%',

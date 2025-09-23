@@ -217,7 +217,7 @@ export default function ModuleManager() {
                 </Picker>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                <DKButton icon={{name: "delete", size: 36}} onPress={() => deleteContentType(item.id)}
+                <DKButton icon={{name: "delete", size: 20}} onPress={() => deleteContentType(item.id)}
                           type={'danger'}></DKButton>
                 <DKButton label={"Güncelle"} onPress={() => updateContentType(item)} type={'primary'}></DKButton>
             </View>
