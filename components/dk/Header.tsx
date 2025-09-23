@@ -3,6 +3,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
 import {router} from 'expo-router';
 import DKButton from "@/components/dk/Button";
+import DKIcon from "@/components/dk/Icon";
 
 interface CustomHeaderProps {
     title: string;
@@ -46,7 +47,7 @@ const DKHeader: React.FC<CustomHeaderProps> = ({
                 {/* Orta - Title */}
                 <View style={styles.centerContainer}>
                     {icon && (
-                        <MaterialIcons name={icon} size={36} color={textColor} style={{marginRight: 8}}/>
+                        <DKIcon name={icon} size={36} color={textColor}/>
                     )}
                     <Text style={[styles.title, {color: textColor}]} numberOfLines={1}>
                         {title}

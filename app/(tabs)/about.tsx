@@ -2,6 +2,7 @@ import React from 'react';
 import {Linking, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 import { WebView } from 'react-native-webview';
 import {MaterialIcons} from '@expo/vector-icons';
+import DKIcon from "@/components/dk/Icon";
 
 function AboutScreen() {
     // Şirket bilgileri
@@ -92,7 +93,7 @@ function AboutScreen() {
 
                     {/* Adres */}
                     <View style={styles.contactItem}>
-                        <MaterialIcons name="location-on" size={24} color="#007AFF"/>
+                        <DKIcon name={"location-on"} size={24} color={"#007AFF"}/>
                         <View style={styles.contactTextContainer}>
                             <Text style={styles.contactLabel}>Adres</Text>
                             <Text style={styles.contactText}>{companyInfo.address}</Text>
@@ -104,7 +105,7 @@ function AboutScreen() {
 
                     {/* Çalışma Saatleri */}
                     <View style={styles.contactItem}>
-                        <MaterialIcons name="access-time" size={24} color="#007AFF"/>
+                        <DKIcon name={"access-time"} size={24} color={"#007AFF"}/>
                         <View style={styles.contactTextContainer}>
                             <Text style={styles.contactLabel}>Çalışma Saatleri</Text>
                             <Text style={styles.contactText}>{companyInfo.workingHours}</Text>

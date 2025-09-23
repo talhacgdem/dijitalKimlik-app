@@ -1,9 +1,8 @@
 import {Tabs} from 'expo-router';
-import {MaterialIcons} from '@expo/vector-icons';
 import {useAuth} from '@/contexts/AuthContext';
-import {TouchableOpacity} from 'react-native';
 import {useDefaultColor} from "@/hooks/useThemeColor";
 import DKButton from "@/components/dk/Button";
+import DKIcon from "@/components/dk/Icon";
 
 export default function TabsLayout() {
     const {logout, user} = useAuth();
@@ -15,7 +14,8 @@ export default function TabsLayout() {
                 headerStyle: {backgroundColor: colors.background},
                 headerTitleStyle: {color: colors.text},
                 headerRight: () => (
-                    <DKButton icon={{name:"logout"}} onPress={logout} type={"none"} style={{marginRight: 16}}></DKButton>
+                    <DKButton icon={{name: "logout"}} onPress={logout} type={"none"}
+                              style={{marginRight: 16}}></DKButton>
                 ),
                 tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: colors.text,
@@ -37,11 +37,7 @@ export default function TabsLayout() {
                 options={{
                     title: 'Ana Sayfa',
                     tabBarIcon: ({color}) => (
-                        <MaterialIcons
-                            name="home"
-                            size={32}
-                            color={color}
-                        />
+                        <DKIcon name={"home"} size={32} color={color}/>
                     )
                 }}
             />
@@ -50,11 +46,7 @@ export default function TabsLayout() {
                 options={{
                     title: 'Profil',
                     tabBarIcon: ({color}) => (
-                        <MaterialIcons
-                            name="person"
-                            size={32}
-                            color={color}
-                        />
+                        <DKIcon name={"person"} size={32} color={color}/>
                     )
                 }}
             />
@@ -63,11 +55,7 @@ export default function TabsLayout() {
                 options={{
                     title: 'Hakkımızda',
                     tabBarIcon: ({color}) => (
-                        <MaterialIcons
-                            name="info"
-                            size={32}
-                            color={color}
-                        />
+                        <DKIcon name={"info"} size={32} color={color}/>
                     )
                 }}
             />
@@ -77,11 +65,7 @@ export default function TabsLayout() {
                     title: 'Admin',
                     href: user?.is_admin ? '/admin' : null,
                     tabBarIcon: ({color}) => (
-                        <MaterialIcons
-                            name="admin-panel-settings"
-                            size={32}
-                            color={color}
-                        />
+                        <DKIcon name={"admin-panel-settings"} size={32} color={color}/>
                     )
                 }}
             />

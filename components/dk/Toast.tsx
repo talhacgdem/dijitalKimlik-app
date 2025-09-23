@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useDefaultColor } from '@/hooks/useThemeColor';
+import DKIcon from "@/components/dk/Icon";
 
 interface DKToastProps {
     visible: boolean;
@@ -202,11 +203,7 @@ const DKToast: React.FC<DKToastProps> = ({
                         {showIcon && (
                             <View style={styles.iconContainer}>
                                 {customIcon || (
-                                    <MaterialIcons
-                                        name={typeConfig.icon as any}
-                                        size={24}
-                                        color={typeConfig.textColor}
-                                    />
+                                    <DKIcon name={typeConfig.icon as any} size={24} color={typeConfig.textColor}/>
                                 )}
                             </View>
                         )}
