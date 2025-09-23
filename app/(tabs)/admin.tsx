@@ -1,12 +1,11 @@
-import {RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Link} from 'expo-router';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
-import {useDefaultColor} from "@/hooks/useThemeColor";
 import React, {useEffect, useState} from "react";
 import {ContentTypeService} from "@/services/api/content";
 import {useGlobalLoading} from "@/contexts/LoadingContext";
-import {SafeAreaView} from "react-native-safe-area-context";
 import DKDivider from '@/components/dk/Divider';
+import DKButtonMenu from "@/components/dk/ButtonMenu";
+import DKError from "@/components/dk/Error";
 
 type MenuItemProps = {
     icon: keyof typeof MaterialIcons.glyphMap;
@@ -19,7 +18,6 @@ type MenuItemProps = {
 }
 
 export default function Index() {
-    let colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
     const [error, setError] = useState<string | null>(null);
 
@@ -80,17 +78,7 @@ export default function Index() {
     // Hata durumu
     if (error) {
         return (
-            <SafeAreaView edges={['bottom']} style={styles.container}>
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, {color: colors.error}]}>{error}</Text>
-                    <TouchableOpacity
-                        style={[styles.retryButton, {backgroundColor: colors.tint}]}
-                        onPress={() => loadData()}
-                    >
-                        <Text style={styles.retryButtonText}>Tekrar Dene</Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
+            <DKError errorMessage={error} onPress={loadData}></DKError>
         );
     }
 
@@ -105,39 +93,35 @@ export default function Index() {
                 showsVerticalScrollIndicator={false}
             >
 
-                    {menuItems.filter(item => item.static).map((item, index) => (
-                        <Link key={index} href={item.route as any} asChild>
-                            <TouchableOpacity style={styles.menuItem}>
-                                <View style={[styles.iconContainer, {backgroundColor: item.color}]}>
-                                    <MaterialIcons name={item.icon} size={48} color={colors.primary}/>
-                                </View>
-                                <Text style={styles.menuItemText}>{item.label}</Text>
-                            </TouchableOpacity>
-                        </Link>
-                    ))}
+                {menuItems.filter(item => item.static).map((item, index) => (
 
-                    <View style={{width: '100%', marginVertical: 8}}>
-                        <DKDivider/>
-                    </View>
+                    <DKButtonMenu
+                        key={index}
+                        icon={item.icon}
+                        label={item.label}
+                        pathname={item.route as any}
+                    ></DKButtonMenu>
 
-                    {menuItems.filter(item => !item.static).map((item, index) => (
-                        <Link key={index} href={{
-                            pathname: "/admin/modules",
-                            params: {
-                                id: item.contentTypeId,
-                                name: item.label,
-                                icon: item.icon,
-                                hasImage: item.contentTypeHasImage.toString()
-                            }
-                        }} asChild>
-                            <TouchableOpacity style={styles.menuItem}>
-                                <View style={[styles.iconContainer, {backgroundColor: item.color}]}>
-                                    <MaterialIcons name={item.icon} size={48} color={colors.primary}/>
-                                </View>
-                                <Text style={styles.menuItemText}>{item.label}</Text>
-                            </TouchableOpacity>
-                        </Link>
-                    ))}
+                ))}
+
+                <View style={{width: '100%', marginVertical: 8}}>
+                    <DKDivider/>
+                </View>
+
+                {menuItems.filter(item => !item.static).map((item, index) => (
+                    <DKButtonMenu
+                        key={index}
+                        icon={item.icon}
+                        label={item.label}
+                        pathname={"/admin/modules"}
+                        params={{
+                            id: item.contentTypeId ? item.contentTypeId.toString() : '0',
+                            name: item.label,
+                            icon: item.icon,
+                            hasImage: item.contentTypeHasImage.toString()
+                        }}
+                    ></DKButtonMenu>
+                ))}
 
             </ScrollView>
         </View>

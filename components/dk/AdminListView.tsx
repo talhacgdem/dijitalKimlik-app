@@ -1,15 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {
-    Alert,
-    FlatList,
-    Image,
-    RefreshControl,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
+import {Alert, FlatList, Image, RefreshControl, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import {ImagePickerAsset} from 'expo-image-picker';
 import {useDefaultColor} from '@/hooks/useThemeColor';
@@ -21,6 +11,8 @@ import DKPagination from "@/components/dk/Pagination";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 import {ContentItem, NewContentRequest, UpdateContentRequest} from "@/types/ContentTypes";
 import {ContentService} from "@/services/api/content";
+import DKError from "@/components/dk/Error";
+import DKButton from "@/components/dk/Button";
 
 interface AdminListViewProps {
     contentApiService: ContentService;
@@ -223,17 +215,7 @@ export default function AdminListView({
 
     if (error && data.length === 0) {
         return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, {color: colors.error}]}>{error}</Text>
-                    <TouchableOpacity
-                        style={[styles.retryButton, {backgroundColor: colors.tint}]}
-                        onPress={() => loadData()}
-                    >
-                        <Text style={styles.retryButtonText}>Tekrar Dene</Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
+            <DKError errorMessage={error} onPress={loadData}></DKError>
         );
     }
 
@@ -241,10 +223,8 @@ export default function AdminListView({
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
-                <TouchableOpacity style={[styles.addButton, {backgroundColor: colors.primary}]}
-                                  onPress={() => handleOpenModal()}>
-                    <Text style={styles.addButtonText}>+ Ekle</Text>
-                </TouchableOpacity>
+                <DKButton icon={{name: "add"}} onPress={() => handleOpenModal()}
+                          type={"primary"}></DKButton>
             </View>
 
             <FlatList
@@ -316,10 +296,8 @@ export default function AdminListView({
                         />
                     </>
                 )}
-                <TouchableOpacity style={[styles.imagePickerButton, {backgroundColor: colors.tint}]}
-                                  onPress={handlePickImage}>
-                    <Text style={{color: 'white'}}>Resim Seç</Text>
-                </TouchableOpacity>
+                <DKButton label={"Resim Seç"} icon={{name: "browse-gallery"}} onPress={handlePickImage}
+                          type={"secondary"}></DKButton>
                 {(formData.image || selectedImage) && (
                     <Image
                         source={{
@@ -329,10 +307,7 @@ export default function AdminListView({
                     />
                 )}
                 <View style={styles.modalButtons}>
-                    <TouchableOpacity style={[styles.modalButton, {backgroundColor: colors.tint}]}
-                                      onPress={handleSave}>
-                        <Text style={{color: 'white'}}>{editMode ? 'Güncelle' : 'Kaydet'}</Text>
-                    </TouchableOpacity>
+                    <DKButton label={editMode ? 'Güncelle' : 'Kaydet'} onPress={handleSave} type={"primary"}></DKButton>
                 </View>
             </DKModal>
         </SafeAreaView>
@@ -344,54 +319,11 @@ const styles = StyleSheet.create({
     container: {flex: 1, padding: 16},
     header: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16},
     title: {fontSize: 20, fontWeight: 'bold'},
-    addButton: {paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6},
-    addButtonText: {color: 'white', fontWeight: 'bold'},
-    itemCard: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 12,
-        elevation: 2,
-    },
-    itemTitle: {fontSize: 16, fontWeight: '600'},
-    actions: {flexDirection: 'row', gap: 12},
-    modalContainer: {flex: 1, padding: 16},
-    modalTitle: {fontSize: 18, fontWeight: 'bold', marginBottom: 12},
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 6,
-        padding: 8,
-        marginBottom: 12,
-    },
     modalButtons: {flexDirection: 'row', justifyContent: 'space-between', marginTop: 16},
-    modalButton: {padding: 12, borderRadius: 6},
-    imagePickerButton: {padding: 12, borderRadius: 6, marginTop: 12},
     imagePreview: {width: 200, height: 200, marginTop: 12, borderRadius: 6},
     emptyText: {
         textAlign: 'center',
         padding: 24,
         fontSize: 16,
-    },
-    errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-    },
-    errorText: {
-        fontSize: 16,
-        marginBottom: 16,
-        textAlign: 'center',
-    },
-    retryButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 6,
-    },
-    retryButtonText: {
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-    },
+    }
 });

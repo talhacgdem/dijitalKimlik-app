@@ -13,6 +13,8 @@ import {modalStyles} from "@/constants/Styles";
 import {ContentItem} from "@/types/ContentTypes";
 import {ContentService} from "@/services/api/content";
 import DKDivider from "@/components/dk/Divider";
+import DKError from "@/components/dk/Error";
+import DKButton from "@/components/dk/Button";
 
 
 interface GenericListViewProps {
@@ -99,17 +101,7 @@ export default function GenericListView({
     // Hata durumu
     if (error && data.length === 0) {
         return (
-            <SafeAreaView edges={['bottom']} style={styles.container}>
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, {color: colors.error}]}>{error}</Text>
-                    <TouchableOpacity
-                        style={[styles.retryButton, {backgroundColor: colors.tint}]}
-                        onPress={() => loadData()}
-                    >
-                        <Text style={styles.retryButtonText}>Tekrar Dene</Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
+            <DKError errorMessage={error} onPress={loadData}/>
         );
     }
 
@@ -128,12 +120,7 @@ export default function GenericListView({
             return (
                 <View style={styles.itemContainer}>
                     <Text style={styles.title}>{item.title}</Text>
-                    <TouchableOpacity
-                        style={styles.detailButton}
-                        onPress={() => handleItemPress(item)}
-                    >
-                        <Text style={styles.buttonText}>Detay</Text>
-                    </TouchableOpacity>
+                    <DKButton label={"Detay"} onPress={() => handleItemPress(item)} type={'primary'}></DKButton>
                 </View>
             )
         }

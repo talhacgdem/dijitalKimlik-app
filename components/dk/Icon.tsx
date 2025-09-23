@@ -1,10 +1,11 @@
 import {useDefaultColor} from "@/hooks/useThemeColor";
 import {MaterialIcons} from "@expo/vector-icons";
+import {ColorValue} from "react-native";
 
 export interface DKIconProps {
     name: string;
     size?: number;
-    color?: string;
+    color?: ColorValue;
     [key: string]: any;
 }
 

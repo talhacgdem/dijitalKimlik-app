@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Alert, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {useGlobalLoading} from "@/contexts/LoadingContext";
 import {ContentType, ContentTypeService} from "@/services/api/content";
 import {useDefaultColor} from "@/hooks/useThemeColor";
@@ -8,6 +8,7 @@ import DKTextInput from "@/components/dk/TextInput";
 import DKSwitch from "@/components/dk/Switch";
 import DKIcon from "@/components/dk/Icon";
 import {Picker} from "@react-native-picker/picker";
+import DKButton from "@/components/dk/Button";
 
 export default function ModuleManager() {
 
@@ -215,22 +216,10 @@ export default function ModuleManager() {
                     ))}
                 </Picker>
             </View>
-            <View style={{flexDirection:"row", justifyContent:"space-between", alignItems:"center"}}>
-                <TouchableOpacity onPress={() => deleteContentType(item.id)}>
-                    <DKIcon name={"delete"} size={36} color={"red"}></DKIcon>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={{
-                        backgroundColor: colors.primary,
-                        padding: 12,
-                        borderRadius: 8,
-                        alignItems: 'center'
-                    }}
-                    onPress={() => updateContentType(item)}
-                >
-                    <Text style={{color: 'white', fontWeight: 'bold'}}>Güncelle</Text>
-                </TouchableOpacity>
+            <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                <DKButton icon={{name: "delete", size: 36}} onPress={() => deleteContentType(item.id)}
+                          type={'danger'}></DKButton>
+                <DKButton label={"Güncelle"} onPress={() => updateContentType(item)} type={'primary'}></DKButton>
             </View>
         </View>
     ), [updateItemName, updateItemIcon, updateItemHasImage, colors.primary]);
@@ -298,29 +287,13 @@ export default function ModuleManager() {
                             </View>
 
                             <View style={styles.buttonRow}>
-                                <TouchableOpacity
-                                    style={[styles.cancelButton, {borderColor: colors.text}]}
-                                    onPress={resetNewContentType}
-                                >
-                                    <Text style={[styles.cancelButtonText, {color: colors.text}]}>İptal</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[styles.addButton, {backgroundColor: colors.primary}]}
-                                    onPress={addNewContentType}
-                                >
-                                    <Text style={styles.addButtonText}>Ekle</Text>
-                                </TouchableOpacity>
+                                <DKButton label={"İptal"} onPress={resetNewContentType} type={'secondary'}></DKButton>
+                                <DKButton label={"Ekle"} onPress={addNewContentType} type={'primary'}></DKButton>
                             </View>
                         </View>
                     ) : (
-                        <TouchableOpacity
-                            style={[styles.showFormButton, {backgroundColor: colors.primary}]}
-                            onPress={() => setIsAddingNew(true)}
-                        >
-                            <DKIcon name="add" size={20} color="white"/>
-                            <Text style={styles.showFormButtonText}>Yeni Modül Ekle</Text>
-                        </TouchableOpacity>
+                        <DKButton label={"Yeni Modül Ekle"} icon={{name: "add", size: 20}}
+                                  onPress={() => setIsAddingNew(true)} type={'primary'}></DKButton>
                     )}
                 </View>
                 <View style={styles.content}>

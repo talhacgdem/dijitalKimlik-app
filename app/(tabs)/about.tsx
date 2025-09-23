@@ -99,38 +99,8 @@ function AboutScreen() {
                         </View>
                     </View>
 
-                    {/* Telefon */}
-                    <TouchableOpacity style={styles.contactItem} onPress={handlePhoneCall}>
-                        <MaterialIcons name="phone" size={24} color="#007AFF"/>
-                        <View style={styles.contactTextContainer}>
-                            <Text style={styles.contactLabel}>Telefon</Text>
-                            <Text style={[styles.contactText, styles.clickableText]}>
-                                {companyInfo.phone}
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
 
-                    {/* E-posta */}
-                    <TouchableOpacity style={styles.contactItem} onPress={handleEmail}>
-                        <MaterialIcons name="email" size={24} color="#007AFF"/>
-                        <View style={styles.contactTextContainer}>
-                            <Text style={styles.contactLabel}>E-posta</Text>
-                            <Text style={[styles.contactText, styles.clickableText]}>
-                                {companyInfo.email}
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
 
-                    {/* Website */}
-                    <TouchableOpacity style={styles.contactItem} onPress={handleWebsite}>
-                        <MaterialIcons name="language" size={24} color="#007AFF"/>
-                        <View style={styles.contactTextContainer}>
-                            <Text style={styles.contactLabel}>Website</Text>
-                            <Text style={[styles.contactText, styles.clickableText]}>
-                                {companyInfo.website}
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
 
                     {/* Çalışma Saatleri */}
                     <View style={styles.contactItem}>
@@ -146,20 +116,7 @@ function AboutScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Hızlı İletişim</Text>
                     <View style={styles.quickContactContainer}>
-                        <TouchableOpacity style={styles.quickContactButton} onPress={handlePhoneCall}>
-                            <MaterialIcons name="phone" size={30} color="#fff"/>
-                            <Text style={styles.quickContactText}>Ara</Text>
-                        </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.quickContactButton} onPress={handleEmail}>
-                            <MaterialIcons name="email" size={30} color="#fff"/>
-                            <Text style={styles.quickContactText}>E-posta</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.quickContactButton} onPress={handleDirections}>
-                            <MaterialIcons name="directions" size={30} color="#fff"/>
-                            <Text style={styles.quickContactText}>Yol Tarifi</Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -167,33 +124,7 @@ function AboutScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Sosyal Medya</Text>
                     <View style={styles.socialMediaContainer}>
-                        <TouchableOpacity
-                            style={[styles.socialButton, {backgroundColor: '#1877F2'}]}
-                            onPress={() => handleSocialMedia('facebook')}
-                        >
-                            <MaterialIcons name="facebook" size={30} color="#fff"/>
-                        </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={[styles.socialButton, {backgroundColor: '#E4405F'}]}
-                            onPress={() => handleSocialMedia('instagram')}
-                        >
-                            <MaterialIcons name="camera-alt" size={30} color="#fff"/>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.socialButton, {backgroundColor: '#1DA1F2'}]}
-                            onPress={() => handleSocialMedia('twitter')}
-                        >
-                            <MaterialIcons name="alternate-email" size={30} color="#fff"/>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.socialButton, {backgroundColor: '#0077B5'}]}
-                            onPress={() => handleSocialMedia('linkedin')}
-                        >
-                            <MaterialIcons name="business" size={30} color="#fff"/>
-                        </TouchableOpacity>
                     </View>
                 </View>
             </ScrollView>

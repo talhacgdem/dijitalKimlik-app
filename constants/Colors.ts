@@ -40,3 +40,19 @@ export const Colors = {
     border: '#ffae00',
   },
 };
+
+export const ColorsCustom = {
+  primary: "#e44e01",
+  primary_75: "rgba(228,78,1,0.75)",
+  primary_50: "rgba(228,78,1,0.5)",
+  primary_25: "rgba(228,78,1,0.25)",
+  text: '#11181C',
+  secondaryText: '#687076',
+  background: '#fff',
+  white: '#fff',
+  inactiveBackground: '#aaaaaa',
+  error: '#FF3B30',
+  success: '#08ff00',
+  warning: '#ffae00',
+  border: '#ffae00',
+}

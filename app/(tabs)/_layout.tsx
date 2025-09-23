@@ -3,6 +3,7 @@ import {MaterialIcons} from '@expo/vector-icons';
 import {useAuth} from '@/contexts/AuthContext';
 import {TouchableOpacity} from 'react-native';
 import {useDefaultColor} from "@/hooks/useThemeColor";
+import DKButton from "@/components/dk/Button";
 
 export default function TabsLayout() {
     const {logout, user} = useAuth();
@@ -14,9 +15,7 @@ export default function TabsLayout() {
                 headerStyle: {backgroundColor: colors.background},
                 headerTitleStyle: {color: colors.text},
                 headerRight: () => (
-                    <TouchableOpacity onPress={logout} style={{marginRight: 16}}>
-                        <MaterialIcons name="logout" size={24} color={colors.text}/>
-                    </TouchableOpacity>
+                    <DKButton icon={{name:"logout"}} onPress={logout} type={"none"} style={{marginRight: 16}}></DKButton>
                 ),
                 tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: colors.text,

@@ -1,10 +1,10 @@
 // Detay Modal Bileşeni
 import {useDefaultColor} from "@/hooks/useThemeColor";
-import {Modal, ScrollView, Text, TouchableOpacity, View} from "react-native";
+import {Modal, ScrollView, Text, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
-import {MaterialIcons} from "@expo/vector-icons";
 import React, {ReactNode} from "react";
 import {modalStyles} from "@/constants/Styles";
+import DKButton from "./Button";
 
 
 interface ModalProps {
@@ -27,9 +27,7 @@ export default function DKModal({visible, onClose, modalHeader = 'Detay', childr
         >
             <SafeAreaView style={[modalStyles.container, {backgroundColor: colors.background}]}>
                 <View style={[modalStyles.header, {borderBottomColor: colors.border}]}>
-                    <TouchableOpacity onPress={onClose} style={modalStyles.closeButton}>
-                        <MaterialIcons name="close" size={24} color={colors.text}/>
-                    </TouchableOpacity>
+                    <DKButton icon={{name: "close", size: 24}} onPress={onClose} type={'none'}></DKButton>
                     <Text style={[modalStyles.title, {color: colors.text}]}>{modalHeader}</Text>
                     <View style={modalStyles.placeholder}/>
                 </View>

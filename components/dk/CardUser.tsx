@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { BASE_STORAGE_URL } from '@/services/api/Endpoints';
-import { useDefaultColor } from '@/hooks/useThemeColor';
-import { UserDto } from '@/types/AuthDto';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {BASE_STORAGE_URL} from '@/services/api/Endpoints';
+import {useDefaultColor} from '@/hooks/useThemeColor';
+import {UserDto} from '@/types/AuthDto';
+import DKButton from "@/components/dk/Button";
 
 interface UserCardProps {
     user: UserDto;
@@ -13,12 +14,12 @@ interface UserCardProps {
     };
 }
 
-export default function DKUserCard({ user, onPress, controlItems }: UserCardProps) {
+export default function DKUserCard({user, onPress, controlItems}: UserCardProps) {
     const colors = useDefaultColor();
 
     return (
         <TouchableOpacity
-            style={[styles.cardContainer, { backgroundColor: colors.background }]}
+            style={[styles.cardContainer, {backgroundColor: colors.background}]}
             onPress={() => onPress?.(user)}
             activeOpacity={0.7}
         >
@@ -27,8 +28,8 @@ export default function DKUserCard({ user, onPress, controlItems }: UserCardProp
                 <Image
                     source={
                         user.image
-                            ? { uri: `${BASE_STORAGE_URL}${user.image}` }
-                            : { uri: 'https://avatar.iran.liara.run/public'}
+                            ? {uri: `${BASE_STORAGE_URL}${user.image}`}
+                            : {uri: 'https://avatar.iran.liara.run/public'}
                     }
                     style={styles.profileImage}
                     resizeMode="cover"
@@ -38,48 +39,38 @@ export default function DKUserCard({ user, onPress, controlItems }: UserCardProp
             {/* Sağ Sütun - Kullanıcı Bilgileri (%80) */}
             <View style={styles.infoContainer}>
                 <View style={styles.headerRow}>
-                    <Text style={[styles.fullName, { color: colors.text }]}>
+                    <Text style={[styles.fullName, {color: colors.text}]}>
                         {user.name}
                     </Text>
 
                     {controlItems && (
                         <View style={styles.actions}>
-                            <TouchableOpacity
-                                style={[styles.actionButton, { backgroundColor: colors.tint }]}
-                                onPress={controlItems.onEdit}
-                            >
-                                <Text style={styles.actionButtonText}>Düzenle</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.actionButton, { backgroundColor: colors.error }]}
-                                onPress={controlItems.onRemove}
-                            >
-                                <Text style={styles.actionButtonText}>Sil</Text>
-                            </TouchableOpacity>
+                            <DKButton label={"Düzenle"} onPress={controlItems.onEdit} type={'primary'}></DKButton>
+                            <DKButton label={"Sil"} onPress={controlItems.onRemove} type={'danger'}></DKButton>
                         </View>
                     )}
                 </View>
 
                 <View style={styles.infoRow}>
-                    <Text style={[styles.label, { color: colors.secondaryText }]}>Kimlik No:</Text>
-                    <Text style={[styles.value, { color: colors.text }]}>{user.identity_number}</Text>
+                    <Text style={[styles.label, {color: colors.secondaryText}]}>Kimlik No:</Text>
+                    <Text style={[styles.value, {color: colors.text}]}>{user.identity_number}</Text>
                 </View>
 
                 <View style={styles.infoRow}>
-                    <Text style={[styles.label, { color: colors.secondaryText }]}>Telefon:</Text>
-                    <Text style={[styles.value, { color: colors.text }]}>telefon</Text>
+                    <Text style={[styles.label, {color: colors.secondaryText}]}>Telefon:</Text>
+                    <Text style={[styles.value, {color: colors.text}]}>telefon</Text>
                 </View>
 
                 <View style={styles.infoRow}>
-                    <Text style={[styles.label, { color: colors.secondaryText }]}>E-mail:</Text>
-                    <Text style={[styles.value, { color: colors.text }]} numberOfLines={1}>
+                    <Text style={[styles.label, {color: colors.secondaryText}]}>E-mail:</Text>
+                    <Text style={[styles.value, {color: colors.text}]} numberOfLines={1}>
                         {user.email}
                     </Text>
                 </View>
 
                 <View style={styles.infoRow}>
-                    <Text style={[styles.label, { color: colors.secondaryText }]}>Meslek:</Text>
-                    <Text style={[styles.value, { color: colors.text }]}>{user.job}</Text>
+                    <Text style={[styles.label, {color: colors.secondaryText}]}>Meslek:</Text>
+                    <Text style={[styles.value, {color: colors.text}]}>{user.job}</Text>
                 </View>
             </View>
         </TouchableOpacity>
@@ -94,7 +85,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         elevation: 3,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.1,
         shadowRadius: 4,
     },

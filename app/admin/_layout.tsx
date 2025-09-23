@@ -1,8 +1,7 @@
 // app/admin/_layout.tsx
 import {Stack, useLocalSearchParams, useRouter} from 'expo-router';
-import {TouchableOpacity} from 'react-native';
-import {MaterialIcons} from '@expo/vector-icons';
 import {useDefaultColor} from '@/hooks/useThemeColor';
+import DKButton from "@/components/dk/Button";
 
 export default function ModulesLayout() {
     const router = useRouter();
@@ -17,12 +16,12 @@ export default function ModulesLayout() {
                 headerTitleStyle: {color: colors.text},
                 headerTintColor: colors.text, // Geri butonunun rengi
                 headerLeft: () => (
-                    <TouchableOpacity
+                    <DKButton
+                        icon={{name:"arrow-back"}}
                         onPress={() => router.back()}
+                        type={"none"}
                         style={{marginLeft: 16, marginRight: 16}}
-                    >
-                        <MaterialIcons name="arrow-back" size={24} color={colors.text}/>
-                    </TouchableOpacity>
+                    ></DKButton>
                 ),
                 headerShown: true,
             }}

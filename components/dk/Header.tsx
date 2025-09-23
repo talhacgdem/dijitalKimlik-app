@@ -1,7 +1,8 @@
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
 import {router} from 'expo-router';
+import DKButton from "@/components/dk/Button";
 
 interface CustomHeaderProps {
     title: string;
@@ -38,13 +39,7 @@ const DKHeader: React.FC<CustomHeaderProps> = ({
                 {/* Sol taraf - Back button */}
                 <View style={styles.leftContainer}>
                     {showBackButton && (
-                        <TouchableOpacity
-                            onPress={handleBackPress}
-                            style={styles.backButton}
-                            hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
-                        >
-                            <MaterialIcons name="arrow-back" size={24} color={textColor}/>
-                        </TouchableOpacity>
+                        <DKButton icon={{name: "arrow-back", size: 24}} onPress={handleBackPress} type={'none'}/>
                     )}
                 </View>
 

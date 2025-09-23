@@ -4,7 +4,7 @@ import {formatDateString} from "@/utils/DateUtil";
 import {truncateContent} from "@/utils/StringUtils";
 import React from "react";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
-import {MaterialIcons} from "@expo/vector-icons";
+import DKButton from "@/components/dk/Button";
 
 export interface DKCardProps {
     title: string;
@@ -51,17 +51,13 @@ export default function DKCard({title, content, image, date, onPress, cardHeight
             </View>
             {controlItems && (
                 <View style={{
-                    flexDirection:"row",
-                    display:"flex",
-                    justifyContent:"space-between",
-                    padding:10
+                    flexDirection: "row",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    paddingTop: 10
                 }}>
-                    <TouchableOpacity onPress={() => controlItems.onRemove()}>
-                        <MaterialIcons name="delete" size={32} color="black"/>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => controlItems.onEdit()}>
-                        <MaterialIcons name="edit" size={32} color={colors.primary}/>
-                    </TouchableOpacity>
+                    <DKButton icon={{name: "delete", size: 20}} onPress={controlItems.onRemove} type={'danger'} style={{padding:5}}/>
+                    <DKButton icon={{name: "edit", size: 20}} onPress={controlItems.onEdit} type={'primary'} style={{padding:5}}/>
                 </View>
             )}
         </TouchableOpacity>

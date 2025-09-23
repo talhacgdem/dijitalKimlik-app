@@ -1,6 +1,6 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {useDefaultColor} from '@/hooks/useThemeColor';
-import {MaterialIcons} from '@expo/vector-icons';
+import DKButton from './Button';
 
 export interface DKPaginationProps {
     currentPage: number;
@@ -13,19 +13,19 @@ export default function DKPagination({currentPage, lastPage, onPageChange}: DKPa
 
     return (
         <View style={[styles.fixedPagination, {backgroundColor: colors.cardBackground}]}>
-            <TouchableOpacity
+            <DKButton
                 disabled={currentPage <= 1}
+                icon={{name: "chevron-left", size: 24}}
                 onPress={() => onPageChange(currentPage - 1)}
+                type={'none'}
                 style={[
                     styles.arrowButton,
                     {
-                        backgroundColor: (currentPage <= 1) ? colors.inactiveBackground : colors.primary,
-                        opacity: (currentPage <= 1) ? 0.5 : 1
+                        backgroundColor: (currentPage <= 1) ? colors.inactiveBackground : colors.primary
                     }
                 ]}
-            >
-                <MaterialIcons name="chevron-left" size={24} color="#FFFFFF"/>
-            </TouchableOpacity>
+                colorText={"#FFFFFF"}
+            />
 
             <View style={styles.pageInfoContainer}>
                 <Text style={[styles.pageInfo, {color: colors.text}]}>
@@ -33,19 +33,19 @@ export default function DKPagination({currentPage, lastPage, onPageChange}: DKPa
                 </Text>
             </View>
 
-            <TouchableOpacity
+            <DKButton
                 disabled={currentPage >= lastPage}
+                icon={{name: "chevron-right", size: 24}}
                 onPress={() => onPageChange(currentPage + 1)}
+                type={'none'}
                 style={[
                     styles.arrowButton,
                     {
-                        backgroundColor: (currentPage >= lastPage) ? colors.inactiveBackground : colors.primary,
-                        opacity: (currentPage >= lastPage) ? 0.5 : 1
+                        backgroundColor: (currentPage >= lastPage) ? colors.inactiveBackground : colors.primary
                     }
                 ]}
-            >
-                <MaterialIcons name="chevron-right" size={24} color="#FFFFFF"/>
-            </TouchableOpacity>
+                colorText={"#FFFFFF"}
+            />
         </View>
     );
 };
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
         shadowOffset: {width: 0, height: 1},
         shadowOpacity: 0.2,
         shadowRadius: 2,
+        padding: 0
     },
     pageInfoContainer: {
         flex: 1,

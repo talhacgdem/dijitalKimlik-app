@@ -1,17 +1,14 @@
 import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import {UserDto} from "@/types/AuthDto";
 import {formatDate} from "@/utils/DateUtil";
-import {MaterialIcons} from "@expo/vector-icons";
 
 interface UserIdCardProps {
-    editModeHandler: () => void,
     user: UserDto | null
 }
 
 const UserIdCard = ({
-                        user,
-                        editModeHandler
+                        user
                     }: UserIdCardProps) => {
 
     return (
@@ -61,10 +58,6 @@ const UserIdCard = ({
                     </View>
                 </View>
             </View>
-
-            <TouchableOpacity onPress={editModeHandler} style={styles.editButton}>
-                <MaterialIcons name="edit" size={20} color="white"/>
-            </TouchableOpacity>
 
             {/* Dekoratif Elementler */}
             <View style={styles.decorativeCircle1}/>
@@ -178,27 +171,6 @@ const styles = StyleSheet.create({
         opacity: 0.08,
         bottom: -15,
         left: -15,
-    },
-    editButton: {
-        position: 'absolute',
-        top: -5,
-        left: -5,
-        backgroundColor: '#e44e01',
-        paddingLeft: 10,
-        paddingTop: 10,
-        paddingRight: 5,
-        zIndex: 10,
-        borderRadius: 4,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 2,
-            height: 2,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 6,
-        borderWidth: 1,
-        borderColor: '#E67E00', // Daha koyu turuncu border
     },
 });
 

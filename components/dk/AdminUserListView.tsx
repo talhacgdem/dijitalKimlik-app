@@ -1,15 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {
-    Alert,
-    FlatList,
-    Image,
-    RefreshControl,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
+import {Alert, FlatList, Image, RefreshControl, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import {ImagePickerAsset} from 'expo-image-picker';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKModal from "@/components/dk/Modal";
@@ -21,6 +11,8 @@ import {UserApiService} from '@/services/api/user';
 import {UserDto} from '@/types/AuthDto';
 import {NewUserRequest, UpdateUserRequest} from '@/types/UserTypes';
 import DKUserCard from "@/components/dk/CardUser";
+import DKError from "@/components/dk/Error";
+import DKButton from './Button';
 
 interface AdminUserListViewProps {
     userApiService: UserApiService;
@@ -115,7 +107,7 @@ export default function AdminUserListView({
                 email: null,
                 job: null,
                 image: null,
-                password:null
+                password: null
             });
             setSelectedItem(null);
         }
@@ -150,26 +142,26 @@ export default function AdminUserListView({
 
     const handleSave = async () => {
 
-            const dataToSave = {
-                identity_number: formData.identity_number,
-                name: formData.name,
-                phone: formData.phone,
-                email: formData.email,
-                job: formData.job,
-                image: selectedImage?.base64 || formData.image,
-                password: formData.password
-            };
+        const dataToSave = {
+            identity_number: formData.identity_number,
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            job: formData.job,
+            image: selectedImage?.base64 || formData.image,
+            password: formData.password
+        };
 
-            if (editMode && selectedItem != null) {
-                const updateData: Partial<UpdateUserRequest> = dataToSave;
-                await userApiService.updateUser(selectedItem.identity_number, updateData);
-            } else {
-                const createData: Partial<NewUserRequest> = dataToSave;
-                await userApiService.createUser(createData);
-            }
+        if (editMode && selectedItem != null) {
+            const updateData: Partial<UpdateUserRequest> = dataToSave;
+            await userApiService.updateUser(selectedItem.identity_number, updateData);
+        } else {
+            const createData: Partial<NewUserRequest> = dataToSave;
+            await userApiService.createUser(createData);
+        }
 
-            resetModal();
-            await loadData();
+        resetModal();
+        await loadData();
     };
 
     const handleDelete = async (item: UserDto) => {
@@ -193,17 +185,7 @@ export default function AdminUserListView({
 
     if (error && data.length === 0) {
         return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, {color: colors.error}]}>{error}</Text>
-                    <TouchableOpacity
-                        style={[styles.retryButton, {backgroundColor: colors.tint}]}
-                        onPress={() => loadData()}
-                    >
-                        <Text style={styles.retryButtonText}>Tekrar Dene</Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
+            <DKError errorMessage={error} onPress={loadData}></DKError>
         );
     }
 
@@ -211,12 +193,7 @@ export default function AdminUserListView({
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
-                <TouchableOpacity
-                    style={[styles.addButton, {backgroundColor: colors.primary}]}
-                    onPress={() => handleOpenModal()}
-                >
-                    <Text style={styles.addButtonText}>+ Kullanıcı Ekle</Text>
-                </TouchableOpacity>
+                <DKButton label={"+ Kullanıcı Ekle"} onPress={handleOpenModal} type={'primary'}></DKButton>
             </View>
 
 
@@ -320,14 +297,7 @@ export default function AdminUserListView({
                 )}
 
                 <View style={styles.modalButtons}>
-                    <TouchableOpacity
-                        style={[styles.modalButton, {backgroundColor: colors.tint}]}
-                        onPress={handleSave}
-                    >
-                        <Text style={{color: 'white'}}>
-                            {editMode ? 'Güncelle' : 'Kaydet'}
-                        </Text>
-                    </TouchableOpacity>
+                    <DKButton label={editMode ? "Güncelle" : "Kaydet"} onPress={handleSave} type={'primary'}></DKButton>
                 </View>
             </DKModal>
         </SafeAreaView>
@@ -346,8 +316,8 @@ const styles = StyleSheet.create({
     addButton: {paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6},
     addButtonText: {color: 'white', fontWeight: 'bold'},
     modalButtons: {flexDirection: 'row', justifyContent: 'space-between', marginTop: 16},
+
     modalButton: {padding: 12, borderRadius: 6, flex: 1},
-    imagePickerButton: {padding: 12, borderRadius: 6, marginTop: 12},
     imagePreview: {
         width: 200,
         height: 266, // 3:4 aspect ratio
@@ -359,25 +329,5 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         padding: 24,
         fontSize: 16,
-    },
-    errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-    },
-    errorText: {
-        fontSize: 16,
-        marginBottom: 16,
-        textAlign: 'center',
-    },
-    retryButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 6,
-    },
-    retryButtonText: {
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-    },
+    }
 });
