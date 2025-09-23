@@ -4,6 +4,7 @@ import React, {useEffect, useState} from "react";
 import {useGlobalLoading} from '@/contexts/LoadingContext';
 import DKButtonMenu from "@/components/dk/ButtonMenu";
 import DKError from "@/components/dk/Error";
+import {useFocusEffect} from "expo-router";
 
 export default function Index() {
     const {showLoading, hideLoading} = useGlobalLoading();
@@ -28,6 +29,12 @@ export default function Index() {
 
         }
     };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            loadData();
+        }, [])
+    );
 
     useEffect(() => {
         loadData();

@@ -6,6 +6,7 @@ import {useGlobalLoading} from "@/contexts/LoadingContext";
 import DKDivider from '@/components/dk/Divider';
 import DKButtonMenu from "@/components/dk/ButtonMenu";
 import DKError from "@/components/dk/Error";
+import {useFocusEffect} from "expo-router";
 
 type MenuItemProps = {
     icon: keyof typeof MaterialIcons.glyphMap;
@@ -71,6 +72,11 @@ export default function Index() {
         }
     };
 
+    useFocusEffect(
+        React.useCallback(() => {
+            loadData();
+        }, [])
+    );
     useEffect(() => {
         loadData();
     }, []);
