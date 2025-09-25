@@ -1,7 +1,7 @@
 // components/dk/TextInput.tsx
 import { TextInput } from "react-native-paper";
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useDefaultColor } from "@/hooks/useThemeColor";
 
 export interface DKTextInputProps {

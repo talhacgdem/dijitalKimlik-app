@@ -2,7 +2,6 @@
 import React from "react";
 import {StyleSheet, Switch, View, Text} from "react-native";
 import {useDefaultColor} from "@/hooks/useThemeColor";
-import {Label} from "@react-navigation/elements";
 
 export interface DKSwitchProps {
     label: string;

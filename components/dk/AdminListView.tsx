@@ -80,7 +80,7 @@ export default function AdminListView({
 
     useEffect(() => {
         loadData().then(r => console.log("admin load data", r));
-    }, []);
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     const handlePageChange = (page: number) => {
         loadData(page, false);

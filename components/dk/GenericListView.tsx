@@ -1,6 +1,6 @@
 // app/components/GenericListView.tsx
 import React, {useEffect, useState} from 'react';
-import {FlatList, Image, RefreshControl, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {FlatList, Image, RefreshControl, StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKModal from "@/components/dk/Modal";
@@ -96,7 +96,7 @@ export default function GenericListView({
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     // Hata durumu
     if (error && data.length === 0) {

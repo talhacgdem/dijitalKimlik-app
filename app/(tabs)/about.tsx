@@ -1,5 +1,5 @@
 import React from 'react';
-import {Linking, SafeAreaView, ScrollView, StyleSheet, Text, View,} from 'react-native';
+import {SafeAreaView, ScrollView, StyleSheet, Text, View,} from 'react-native';
 import {WebView} from 'react-native-webview';
 import DKIcon from "@/components/dk/Icon";
 
@@ -19,43 +19,6 @@ function AboutScreen() {
         },
     };
 
-    const handlePhoneCall = () => {
-        Linking.openURL(`tel:${companyInfo.phone}`);
-    };
-
-    const handleEmail = () => {
-        Linking.openURL(`mailto:${companyInfo.email}`);
-    };
-
-    const handleWebsite = () => {
-        Linking.openURL(`https://${companyInfo.website}`);
-    };
-
-    const handleDirections = () => {
-        const url = `https://www.google.com/maps/dir/?api=1&destination=${companyInfo.coordinates.latitude},${companyInfo.coordinates.longitude}`;
-        Linking.openURL(url);
-    };
-
-    const handleSocialMedia = (platform: string) => {
-        let url = '';
-        switch (platform) {
-            case 'facebook':
-                url = 'https://www.facebook.com/yourpage';
-                break;
-            case 'instagram':
-                url = 'https://www.instagram.com/yourpage';
-                break;
-            case 'twitter':
-                url = 'https://www.twitter.com/yourpage';
-                break;
-            case 'linkedin':
-                url = 'https://www.linkedin.com/company/yourcompany';
-                break;
-        }
-        if (url) {
-            Linking.openURL(url);
-        }
-    };
 
     return (
         <SafeAreaView style={styles.container}>

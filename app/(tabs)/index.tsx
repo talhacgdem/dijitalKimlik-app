@@ -33,12 +33,12 @@ export default function Index() {
     useFocusEffect(
         React.useCallback(() => {
             loadData();
-        }, [])
+        }, []) // eslint-disable-line react-hooks/exhaustive-deps
     );
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Hata durumu
     if (error && data.length === 0) {

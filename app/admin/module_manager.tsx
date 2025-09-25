@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Alert, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {useGlobalLoading} from "@/contexts/LoadingContext";
 import {ContentType, ContentTypeService} from "@/services/api/content";
@@ -7,9 +7,9 @@ import AccordionList, {AccordionItemData} from "@/components/dk/Accordion";
 import DKTextInput from "@/components/dk/TextInput";
 import DKSwitch from "@/components/dk/Switch";
 import DKIcon, {DKIconType} from "@/components/dk/Icon";
-import {Picker} from "@react-native-picker/picker";
 import DKButton from "@/components/dk/Button";
 import PickerDropdown from "@/components/dk/Pickeronic";
+import DKError from "@/components/dk/Error";
 
 export default function ModuleManager() {
 
@@ -19,6 +19,13 @@ export default function ModuleManager() {
     const [data, setData] = useState<ContentType[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const iconOptions = useMemo(() => [
+        'home', 'person', 'settings', 'favorite', 'search',
+        'notifications', 'email', 'phone', 'location-on', 'camera',
+        'shopping-cart', 'work', 'school', 'restaurant', 'local-hospital',
+        'directions-car', 'flight', 'hotel', 'beach-access', 'fitness-center'
+    ], []);
 
     const [newContentType, setNewContentType] = useState<Partial<ContentType>>({
         name: '',
@@ -116,14 +123,8 @@ export default function ModuleManager() {
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const iconOptions = [
-        'home', 'person', 'settings', 'favorite', 'search',
-        'notifications', 'email', 'phone', 'location-on', 'camera',
-        'shopping-cart', 'work', 'school', 'restaurant', 'local-hospital',
-        'directions-car', 'flight', 'hotel', 'beach-access', 'fitness-center'
-    ];
 
     const updateItemField = useCallback((itemId: number, field: keyof ContentType, value: any) => {
         setData(prevData =>
@@ -153,7 +154,7 @@ export default function ModuleManager() {
         );
     }, []);
 
-    const updateContentType = async (item: ContentType) => {
+    const updateContentType = useCallback(async (item: ContentType) => {
         try {
             showLoading("Güncelleniyor...");
             console.log('Güncellenecek item:', item);
@@ -169,60 +170,65 @@ export default function ModuleManager() {
         } finally {
             hideLoading();
         }
-    };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const deleteContentType = async (itemid: number) => {
+    const deleteContentType = useCallback(async (itemid: number) => {
         try {
             showLoading("Siliniyor...");
-
             console.log('silinecek item:', itemid);
-
         } catch (error) {
             console.error('Güncelleme hatası:', error);
             loadData();
         } finally {
             hideLoading();
         }
-    };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-    const renderAccordionContentView = useCallback((item: ContentType) => (
-        <View style={styles.accordionView}>
-            <DKTextInput
-                label={"Modül Adı"}
-                value={item.name}
-                onChange={(text) => updateItemName(item.id, text)}
-            />
-            <DKSwitch
-                label={"Görsel Var Mı?"}
-                value={item.hasImage}
-                onChange={() => updateItemHasImage(item.id)}
-            />
-            <View style={{
-                flexDirection: "row",
-                marginBottom: 16,
-            }}>
-                <DKIcon name={item.icon} styles={styles.col}/>
-                <PickerDropdown style={styles.col} selectedValue={item.icon}
-                                onValueChange={(value) => updateItemIcon(item.id, value)}>
-                    {iconOptions.map((icon) => (
-                        <PickerDropdown.Item
-                            key={icon}
-                            label={icon}
-                            icon={icon as DKIconType}
-                            value={icon}
-                        />
-                    ))}
-                </PickerDropdown>
+    const renderAccordionContentView = useCallback((item: ContentType) => {
+        return (
+            <View style={styles.accordionView}>
+                <DKTextInput
+                    label={"Modül Adı"}
+                    value={item.name}
+                    onChange={(text) => updateItemName(item.id, text)}
+                />
+                <DKSwitch
+                    label={"Görsel Var Mı?"}
+                    value={item.hasImage}
+                    onChange={() => updateItemHasImage(item.id)}
+                />
+                <View style={{
+                    flexDirection: "row",
+                    marginBottom: 16,
+                }}>
+                    <DKIcon name={item.icon} styles={styles.col}/>
+                    <PickerDropdown style={styles.col} selectedValue={item.icon}
+                                    onValueChange={(value) => updateItemIcon(item.id, value)}>
+                        {iconOptions.map((icon) => (
+                            <PickerDropdown.Item
+                                key={icon}
+                                label={icon}
+                                icon={icon as DKIconType}
+                                value={icon}
+                            />
+                        ))}
+                    </PickerDropdown>
+                </View>
+                <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                    <DKButton icon={{name: "delete", size: 20}} onPress={() => deleteContentType(item.id)}
+                              type={'danger'}></DKButton>
+                    <DKButton label={"Güncelle"} onPress={() => updateContentType(item)} type={'primary'}></DKButton>
+                </View>
             </View>
-            <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                <DKButton icon={{name: "delete", size: 20}} onPress={() => deleteContentType(item.id)}
-                          type={'danger'}></DKButton>
-                <DKButton label={"Güncelle"} onPress={() => updateContentType(item)} type={'primary'}></DKButton>
-            </View>
-        </View>
-    ), [updateItemName, updateItemIcon, updateItemHasImage, colors.primary]);
+        )
+    }, [iconOptions, updateItemName, updateItemHasImage, updateItemIcon, deleteContentType, updateContentType]);
 
+    if (error && data.length === 0) {
+        return (
+            <DKError errorMessage={error} onPress={loadData}/>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -269,19 +275,17 @@ export default function ModuleManager() {
                                 <Text style={[styles.iconLabel, {color: colors.text}]}>İkon Seçin:</Text>
                                 <View style={styles.iconPickerRow}>
                                     <DKIcon name={newContentType.icon || 'home'} styles={styles.iconPreview}/>
-                                    <Picker
-                                        style={styles.iconPicker}
-                                        selectedValue={newContentType.icon || 'home'}
-                                        onValueChange={(itemValue) => updateNewContentTypeField('icon', itemValue)}
-                                    >
+                                    <PickerDropdown style={styles.col}
+                                                    onValueChange={(value) => updateNewContentTypeField('icon', value)}>
                                         {iconOptions.map((icon) => (
-                                            <Picker.Item
+                                            <PickerDropdown.Item
                                                 key={icon}
                                                 label={icon}
+                                                icon={icon as DKIconType}
                                                 value={icon}
                                             />
                                         ))}
-                                    </Picker>
+                                    </PickerDropdown>
                                 </View>
                             </View>
 

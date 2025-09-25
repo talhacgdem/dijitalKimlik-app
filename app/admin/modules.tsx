@@ -2,14 +2,12 @@ import {useLocalSearchParams} from 'expo-router';
 import {createContentService} from "@/services/api/content";
 import React from "react";
 import AdminListView from "@/components/dk/AdminListView";
-import {DKIconType} from "@/components/dk/Icon";
 
 export default function ContentPage() {
-    const {id, name, hasImage, icon} = useLocalSearchParams<{
+    const {id, name, hasImage} = useLocalSearchParams<{
         id: string,
         name: string,
-        hasImage: string,
-        icon: DKIconType
+        hasImage: string
     }>();
 
     const service = createContentService(id, name);

@@ -77,6 +77,7 @@ const DKToast: React.FC<DKToastProps> = ({
     const typeConfig = getTypeConfig();
 
     // Mesaj uzunluğuna göre süreyi ayarla
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const getDynamicDuration = () => {
         if (duration <= 0) return 0; // Manuel kapatma
 
