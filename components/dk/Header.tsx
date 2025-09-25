@@ -1,14 +1,13 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {MaterialIcons} from '@expo/vector-icons';
 import {router} from 'expo-router';
 import DKButton from "@/components/dk/Button";
-import DKIcon from "@/components/dk/Icon";
+import DKIcon, {DKIconType} from "@/components/dk/Icon";
 import {ColorsCustom} from "@/constants/Colors";
 
 interface CustomHeaderProps {
     title: string;
-    icon: keyof typeof MaterialIcons.glyphMap;
+    icon: DKIconType;
     backgroundColor?: string;
     textColor?: string;
     showBackButton?: boolean;

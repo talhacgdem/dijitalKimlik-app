@@ -1,5 +1,4 @@
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import {MaterialIcons} from '@expo/vector-icons';
 import React, {useEffect, useState} from "react";
 import {ContentTypeService} from "@/services/api/content";
 import {useGlobalLoading} from "@/contexts/LoadingContext";
@@ -7,9 +6,10 @@ import DKDivider from '@/components/dk/Divider';
 import DKButtonMenu from "@/components/dk/ButtonMenu";
 import DKError from "@/components/dk/Error";
 import {useFocusEffect} from "expo-router";
+import {DKIconType} from "@/components/dk/Icon";
 
 type MenuItemProps = {
-    icon: keyof typeof MaterialIcons.glyphMap;
+    icon: DKIconType;
     label: string;
     route: string;
     static: boolean;

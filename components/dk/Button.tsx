@@ -1,13 +1,12 @@
 import React from 'react';
 import {ColorValue, Pressable, Text} from 'react-native';
-import {MaterialIcons} from "@expo/vector-icons";
 import {ColorsCustom} from "@/constants/Colors";
-import DKIcon from "@/components/dk/Icon";
+import DKIcon, {DKIconType} from "@/components/dk/Icon";
 
 interface DKButtonProps {
     type: 'primary' | 'secondary' | 'warning' | 'danger' | 'none' | 'unset';
     label?: string;
-    icon?: { name: keyof typeof MaterialIcons.glyphMap, size?: number };
+    icon?: { name: DKIconType, size?: number };
     onPress: () => void;
     style?: any;
     colorBackground?: ColorValue;

@@ -8,6 +8,7 @@ interface AuthContextType {
     user: UserDto | null;
     isLoading: boolean;
     isAuthenticated: boolean;
+    isAdmin:boolean
     login: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -18,6 +19,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [user, setUser] = useState<UserDto | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+
 
     // Uygulama başladığında refresh token ile oturum kontrolü
     useEffect(() => {
@@ -35,17 +39,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                         await TokenStorage.saveRefreshToken(authData.refresh_token);
                         setUser(authData.user);
                         setIsAuthenticated(true);
+                        setIsAdmin(authData.user.user_type === 'admin');
                     } else {
                         // Refresh token geçersiz, oturumu temizle
                         await TokenStorage.removeRefreshToken();
                         setIsAuthenticated(false);
+                        setIsAdmin(false);
                     }
                 } else {
                     setIsAuthenticated(false);
+                    setIsAdmin(false);
                 }
             } catch (error) {
                 console.error('Oturum kontrolü hatası:', error);
                 setIsAuthenticated(false);
+                setIsAdmin(false);
             } finally {
                 setIsLoading(false);
             }
@@ -61,6 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             const response = await apiClient.login(username, password);
             setUser(response.user);
             setIsAuthenticated(true);
+            setIsAdmin(response.user.user_type === 'admin');
         } catch (error) {
             console.error('Giriş hatası:', error);
             toastManager.error('Hatalı kimlik veya şifre', {
@@ -86,12 +95,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             await TokenStorage.removeRefreshToken();
             setUser(null);
             setIsAuthenticated(false);
+            setIsAdmin(false);
             setIsLoading(false);
         }
     };
 
     return (
-        <AuthContext.Provider value={{user, isLoading, isAuthenticated, login, logout}}>
+        <AuthContext.Provider value={{user, isLoading, isAuthenticated, isAdmin, login, logout}}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,7 +1,7 @@
 import {apiClient} from './client';
 import {BASE_API_URL} from "@/services/api/Endpoints";
-import {MaterialIcons} from "@expo/vector-icons";
 import {GenericStorage} from "@/services/storage";
+import {DKIconType} from "@/components/dk/Icon";
 
 export class ContentTypeService {
     static async getContentTypes(): Promise<ContentTypeResponse> {
@@ -132,7 +132,7 @@ export type ContentResponse = {
 export type ContentType = {
     id: number,
     name: string,
-    icon: keyof typeof MaterialIcons.glyphMap,
+    icon: DKIconType,
     hasImage: boolean,
     is_deleted: boolean,
     updated_at: Date,

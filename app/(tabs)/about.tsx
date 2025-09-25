@@ -1,7 +1,6 @@
 import React from 'react';
-import {Linking, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
-import { WebView } from 'react-native-webview';
-import {MaterialIcons} from '@expo/vector-icons';
+import {Linking, SafeAreaView, ScrollView, StyleSheet, Text, View,} from 'react-native';
+import {WebView} from 'react-native-webview';
 import DKIcon from "@/components/dk/Icon";
 
 function AboutScreen() {
@@ -37,9 +36,9 @@ function AboutScreen() {
         Linking.openURL(url);
     };
 
-    const handleSocialMedia = (platform : string) => {
+    const handleSocialMedia = (platform: string) => {
         let url = '';
-        switch(platform) {
+        switch (platform) {
             case 'facebook':
                 url = 'https://www.facebook.com/yourpage';
                 break;
@@ -99,8 +98,6 @@ function AboutScreen() {
                             <Text style={styles.contactText}>{companyInfo.address}</Text>
                         </View>
                     </View>
-
-
 
 
                     {/* Çalışma Saatleri */}

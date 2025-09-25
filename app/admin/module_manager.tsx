@@ -6,9 +6,10 @@ import {useDefaultColor} from "@/hooks/useThemeColor";
 import AccordionList, {AccordionItemData} from "@/components/dk/Accordion";
 import DKTextInput from "@/components/dk/TextInput";
 import DKSwitch from "@/components/dk/Switch";
-import DKIcon from "@/components/dk/Icon";
+import DKIcon, {DKIconType} from "@/components/dk/Icon";
 import {Picker} from "@react-native-picker/picker";
 import DKButton from "@/components/dk/Button";
+import PickerDropdown from "@/components/dk/Pickeronic";
 
 export default function ModuleManager() {
 
@@ -202,19 +203,17 @@ export default function ModuleManager() {
                 marginBottom: 16,
             }}>
                 <DKIcon name={item.icon} styles={styles.col}/>
-                <Picker
-                    style={styles.col}
-                    selectedValue={item.icon}
-                    onValueChange={(itemValue) => updateItemIcon(item.id, itemValue)}
-                >
+                <PickerDropdown style={styles.col} selectedValue={item.icon}
+                                onValueChange={(value) => updateItemIcon(item.id, value)}>
                     {iconOptions.map((icon) => (
-                        <Picker.Item
+                        <PickerDropdown.Item
                             key={icon}
                             label={icon}
+                            icon={icon as DKIconType}
                             value={icon}
                         />
                     ))}
-                </Picker>
+                </PickerDropdown>
             </View>
             <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                 <DKButton icon={{name: "delete", size: 20}} onPress={() => deleteContentType(item.id)}

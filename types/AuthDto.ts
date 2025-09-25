@@ -15,12 +15,12 @@ export interface UserDto {
     id: number;
     name: string;
     identity_number: string;
-    is_admin: boolean;
     is_deleted: number;
     created_at: Date;
     updated_at: Date;
     image: string;
-    job:string;
-    birthDate:Date|null;
-    email:string;
+    job: string;
+    birthDate: Date | null;
+    email: string;
+    user_type: 'admin' | 'user' | 'test';
 }

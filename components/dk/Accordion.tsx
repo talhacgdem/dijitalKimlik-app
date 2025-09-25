@@ -1,14 +1,13 @@
 // AccordionListSimple.tsx
 import React, {ReactElement, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
-import {MaterialIcons} from '@expo/vector-icons';
 import Animated, {interpolate, useAnimatedStyle, useSharedValue, withTiming,} from 'react-native-reanimated';
-import DKIcon from "@/components/dk/Icon";
+import DKIcon, {DKIconType} from "@/components/dk/Icon";
 
 export interface AccordionItemData {
     id: number;
     title: string;
-    icon?: keyof typeof MaterialIcons.glyphMap;
+    icon?: DKIconType;
     content: ReactElement;
 }
 

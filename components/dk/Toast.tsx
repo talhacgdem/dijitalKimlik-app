@@ -1,16 +1,15 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-    View,
-    Text,
     Animated,
-    StyleSheet,
     Dimensions,
-    TouchableWithoutFeedback,
     StyleProp,
+    StyleSheet,
+    Text,
+    TouchableWithoutFeedback,
+    View,
     ViewStyle
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useDefaultColor } from '@/hooks/useThemeColor';
+import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKIcon from "@/components/dk/Icon";
 
 interface DKToastProps {
@@ -178,7 +177,7 @@ const DKToast: React.FC<DKToastProps> = ({
 
     // Metin yüksekliğini ölç
     const onTextLayout = (event: any) => {
-        const { height } = event.nativeEvent.layout;
+        const {height} = event.nativeEvent.layout;
         setTextHeight(height);
     };
 
@@ -192,8 +191,8 @@ const DKToast: React.FC<DKToastProps> = ({
                         backgroundColor: typeConfig.backgroundColor,
                         opacity: fadeAnim,
                         transform: [
-                            { scale: scaleAnim },
-                            { translateY: translateYAnim }
+                            {scale: scaleAnim},
+                            {translateY: translateYAnim}
                         ],
                     }
                 ]}
@@ -210,7 +209,7 @@ const DKToast: React.FC<DKToastProps> = ({
                         <Text
                             style={[
                                 styles.message,
-                                { color: typeConfig.textColor }
+                                {color: typeConfig.textColor}
                             ]}
                             numberOfLines={maxLines}
                             onLayout={onTextLayout}

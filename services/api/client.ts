@@ -10,7 +10,7 @@ import {Alert} from 'react-native';
 // API URL'leri // Örnek URL, gerçek URL ile değiştirilmeli
 
 class ApiClient {
-    private axiosInstance: AxiosInstance;
+    private readonly axiosInstance: AxiosInstance;
     private accessToken: string | null = null;
 
     constructor() {
@@ -203,7 +203,7 @@ class ApiClient {
     // Login işlemi
     async login(username: string, password: string): Promise<LoginResponseDTO> {
         const response = await this.axiosInstance.post<LoginResponseDTO>(BASE_API_URL + '/auth/login', {
-            identity_number: username,
+            email: username,
             password: password,
         });
 

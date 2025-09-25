@@ -1,14 +1,13 @@
 import React from 'react';
 import {Text, TouchableOpacity, View} from 'react-native';
-import {MaterialIcons} from "@expo/vector-icons";
 import {ColorsCustom} from "@/constants/Colors";
-import DKIcon from "@/components/dk/Icon";
+import DKIcon, {DKIconType} from "@/components/dk/Icon";
 import {useRouter} from "expo-router";
 
 interface DKButtonMenuProps {
     key: React.Key | null;
     label: string;
-    icon: keyof typeof MaterialIcons.glyphMap;
+    icon: DKIconType;
     pathname: any;
     params?: Record<string, string>;
 }

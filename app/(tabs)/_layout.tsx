@@ -5,7 +5,7 @@ import DKButton from "@/components/dk/Button";
 import DKIcon from "@/components/dk/Icon";
 
 export default function TabsLayout() {
-    const {logout, user} = useAuth();
+    const {isAdmin, logout} = useAuth();
     let colors = useDefaultColor();
     return (
         <Tabs
@@ -63,7 +63,7 @@ export default function TabsLayout() {
                 name="admin"
                 options={{
                     title: 'Admin',
-                    href: user?.is_admin ? '/admin' : null,
+                    href: isAdmin ? '/admin' : null,
                     tabBarIcon: ({color}) => (
                         <DKIcon name={"admin-panel-settings"} size={32} color={color}/>
                     )

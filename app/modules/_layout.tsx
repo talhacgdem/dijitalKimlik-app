@@ -4,14 +4,14 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import DKHeader from "@/components/dk/Header";
 import GenericListView from "@/components/dk/GenericListView";
 import React from "react";
-import {MaterialIcons} from "@expo/vector-icons";
+import {DKIconType} from "@/components/dk/Icon";
 
 export default function ContentPage() {
     const {id, name, hasImage, icon} = useLocalSearchParams<{
         id: string,
         name: string,
         hasImage: string,
-        icon: keyof typeof MaterialIcons.glyphMap
+        icon: DKIconType
     }>();
 
     const service = createContentService(id, name);

@@ -1,67 +1,38 @@
 // screens/LoginScreen.tsx
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Button } from 'react-native-paper';
-import { router } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
+import React, {useState} from 'react';
+import {Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Button} from 'react-native-paper';
+import {router} from 'expo-router';
+import {useAuth} from '@/contexts/AuthContext';
 import DKTextInput from '@/components/dk/TextInput';
-import { useDefaultColor } from '@/hooks/useThemeColor';
-import { useLoading } from "@/hooks/useLoading";
-import { isValidTCKN } from "@/utils/StringUtils";
+import {useDefaultColor} from '@/hooks/useThemeColor';
+import {useLoading} from "@/hooks/useLoading";
+import {validateEmail, validatePassword} from "@/utils/StringUtils";
 
 interface ValidationErrors {
-    identityNumber?: string;
+    email?: string;
     password?: string;
 }
 
 export default function LoginScreen() {
-    const { login } = useAuth();
-    const { loading } = useLoading();
+    const {login} = useAuth();
+    const {loading} = useLoading();
     const colors = useDefaultColor();
-    const [identityNumber, setIdentityNumber] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState<ValidationErrors>({});
-    const [touched, setTouched] = useState<{ identityNumber: boolean; password: boolean }>({
-        identityNumber: false,
+    const [touched, setTouched] = useState<{ email: boolean; password: boolean }>({
+        email: false,
         password: false
     });
 
-    const validateIdentityNumber = (value: string): string | undefined => {
-        if (!value.trim()) {
-            return 'TC Kimlik No zorunludur';
-        }
-        if (!/^\d+$/.test(value)) {
-            return 'TC Kimlik No sadece rakam içermelidir';
-        }
-        if (value.length !== 11) {
-            return 'TC Kimlik No 11 hane olmalıdır';
-        }
-        if (!isValidTCKN(value)) {
-            return 'Geçersiz TC Kimlik No';
-        }
-        return undefined;
-    };
 
-    const validatePassword = (value: string): string | undefined => {
-        if (!value.trim()) {
-            return 'Şifre zorunludur';
-        }
-        if (value.length < 6) {
-            return 'Şifre en az 6 karakter olmalıdır';
-        }
-        return undefined;
-    };
-
-    const handleIdentityNumberChange = (text: string) => {
-        const numericText = text.replace(/[^0-9]/g, '');
-        const limitedText = numericText.slice(0, 11);
-
-        setIdentityNumber(limitedText);
-
-        if (touched.identityNumber) {
-            const error = validateIdentityNumber(limitedText);
-            setErrors(prev => ({ ...prev, identityNumber: error }));
+    const handleEmailChange = (text: string) => {
+        setEmail(text);
+        if (touched.email) {
+            const error = validateEmail(text);
+            setErrors(prev => ({...prev, email: error}));
         }
     };
 
@@ -70,33 +41,33 @@ export default function LoginScreen() {
 
         if (touched.password) {
             const error = validatePassword(text);
-            setErrors(prev => ({ ...prev, password: error }));
+            setErrors(prev => ({...prev, password: error}));
         }
     };
 
-    const handleIdentityNumberBlur = () => {
-        setTouched(prev => ({ ...prev, identityNumber: true }));
-        const error = validateIdentityNumber(identityNumber);
-        setErrors(prev => ({ ...prev, identityNumber: error }));
+    const handleEmailBlur = () => {
+        setTouched(prev => ({...prev, email: true}));
+        const error = validateEmail(email);
+        setErrors(prev => ({...prev, email: error}));
     };
 
     const handlePasswordBlur = () => {
-        setTouched(prev => ({ ...prev, password: true }));
+        setTouched(prev => ({...prev, password: true}));
         const error = validatePassword(password);
-        setErrors(prev => ({ ...prev, password: error }));
+        setErrors(prev => ({...prev, password: error}));
     };
 
     const isFormValid = (): boolean => {
-        const identityError = validateIdentityNumber(identityNumber);
+        const identityError = validateEmail(email);
         const passwordError = validatePassword(password);
 
         setErrors({
-            identityNumber: identityError,
+            email: identityError,
             password: passwordError
         });
 
         setTouched({
-            identityNumber: true,
+            email: true,
             password: true
         });
 
@@ -106,7 +77,7 @@ export default function LoginScreen() {
     const handleLogin = async () => {
         if (isFormValid()) {
             try {
-                await login(identityNumber, password);
+                await login(email, password);
             } catch (error) {
                 console.error('Login error:', error);
             }
@@ -119,7 +90,7 @@ export default function LoginScreen() {
 
     return (
         <KeyboardAvoidingView
-            style={[styles.container, { backgroundColor: colors.background }]}
+            style={[styles.container, {backgroundColor: colors.background}]}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <ScrollView
@@ -140,10 +111,10 @@ export default function LoginScreen() {
 
                     {/* Başlık */}
                     <View style={styles.titleContainer}>
-                        <Text style={[styles.title, { color: colors.text }]}>
+                        <Text style={[styles.title, {color: colors.text}]}>
                             Hoş Geldiniz
                         </Text>
-                        <Text style={[styles.subtitle, { color: colors.secondaryText }]}>
+                        <Text style={[styles.subtitle, {color: colors.secondaryText}]}>
                             Hesabınıza giriş yapın
                         </Text>
                     </View>
@@ -151,14 +122,14 @@ export default function LoginScreen() {
                     {/* Form */}
                     <View style={styles.formContainer}>
                         <DKTextInput
-                            label="TC Kimlik No"
-                            value={identityNumber}
-                            onChange={handleIdentityNumberChange}
-                            keyboardType="numeric"
-                            maxLength={11}
-                            onBlur={handleIdentityNumberBlur}
-                            error={touched.identityNumber && !!errors.identityNumber}
-                            helperText={touched.identityNumber ? errors.identityNumber : ''}
+                            label="Email"
+                            value={email}
+                            onChange={handleEmailChange}
+                            keyboardType="email-address"
+                            maxLength={64}
+                            onBlur={handleEmailBlur}
+                            error={touched.email && !!errors.email}
+                            helperText={touched.email ? errors.email : ''}
                             leftIcon="account"
                         />
 
@@ -195,7 +166,7 @@ export default function LoginScreen() {
                             mode="text"
                             onPress={() => router.push('/forgot-password')}
                             style={styles.forgotButton}
-                            labelStyle={[styles.forgotButtonLabel, { color: colors.text }]}
+                            labelStyle={[styles.forgotButtonLabel, {color: colors.text}]}
                         >
                             Şifremi Unuttum
                         </Button>
