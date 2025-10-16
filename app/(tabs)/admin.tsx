@@ -1,6 +1,6 @@
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from "react";
-import {ContentTypeService} from "@/services/api/content";
+import {ContentTypeService} from "@/services/api/v2/ContentTypeService";
 import {useGlobalLoading} from "@/contexts/LoadingContext";
 import DKDivider from '@/components/dk/Divider';
 import DKButtonMenu from "@/components/dk/ButtonMenu";
@@ -14,7 +14,7 @@ type MenuItemProps = {
     route: string;
     static: boolean;
     color?: string;
-    contentTypeId?: number;
+    contentTypeId?: string;
     contentTypeHasImage: boolean;
 }
 
@@ -46,7 +46,7 @@ export default function Index() {
 
             showLoading("Menüler yükleniyor");
             setError(null);
-            const response = await ContentTypeService.getContentTypes();
+            const response = await ContentTypeService.list();
             if (response.success) {
                 const dynamicItems: MenuItemProps[] = response.data.map((item) => ({
                     label: item.name,
@@ -54,7 +54,7 @@ export default function Index() {
                     route: '/admin/modules',
                     static: false,
                     contentTypeId: item.id,
-                    contentTypeHasImage: item.hasImage.toString() === 'true',
+                    contentTypeHasImage: item.has_image.toString() === 'true',
                 }));
 
                 const menusfinal = [...staticMenuItems, ...dynamicItems];

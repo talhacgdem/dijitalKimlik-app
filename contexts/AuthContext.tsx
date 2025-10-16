@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {apiClient} from '@/services/api/client';
+import {apiClient} from '@/services/api/v2/client';
 import {TokenStorage} from '@/services/storage';
 import { UserDto } from '@/types/AuthDto';
 import {toastManager} from "@/services/ToastManager";
@@ -35,11 +35,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
                     if (authData) {
                         // Başarılı ise kullanıcı bilgilerini ayarla
-                        apiClient.setAccessToken(authData.access_token);
-                        await TokenStorage.saveRefreshToken(authData.refresh_token);
-                        setUser(authData.user);
+                        apiClient.setAccessToken(authData.data.access_token, authData.data.expires_in);
+                        await TokenStorage.saveRefreshToken(authData.data.refresh_token);
+                        setUser(authData.data.user);
                         setIsAuthenticated(true);
-                        setIsAdmin(authData.user.user_type === 'admin');
+                        setIsAdmin(authData.data.user.user_type === 'admin');
                     } else {
                         // Refresh token geçersiz, oturumu temizle
                         await TokenStorage.removeRefreshToken();
@@ -67,9 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         setIsLoading(true);
         try {
             const response = await apiClient.login(username, password);
-            setUser(response.user);
+            setUser(response.data.user);
             setIsAuthenticated(true);
-            setIsAdmin(response.user.user_type === 'admin');
+            setIsAdmin(response.data.user.user_type === 'admin');
         } catch (error) {
             console.error('Giriş hatası:', error);
             toastManager.error('Hatalı kimlik veya şifre', {

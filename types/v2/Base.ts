@@ -6,7 +6,7 @@ export interface BaseModel<T> {
 }
 
 export interface Pageable<T> extends BaseModel<T> {
-    meta: {
+    meta?: {
         current_page: number,
         from: number,
         last_page: number,

@@ -10,7 +10,7 @@ export interface DKCardProps {
     title: string;
     content: string;
     image?: string;
-    date: string;
+    date?: string;
     onPress: () => void;
     cardHeight?: number;
     controlItems?: {

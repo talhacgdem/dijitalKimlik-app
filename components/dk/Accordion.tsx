@@ -5,7 +5,7 @@ import Animated, {interpolate, useAnimatedStyle, useSharedValue, withTiming,} fr
 import DKIcon, {DKIconType} from "@/components/dk/Icon";
 
 export interface AccordionItemData {
-    id: number;
+    id: string;
     title: string;
     icon?: DKIconType;
     content: ReactElement;

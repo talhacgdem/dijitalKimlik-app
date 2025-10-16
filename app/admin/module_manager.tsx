@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Alert, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {useGlobalLoading} from "@/contexts/LoadingContext";
-import {ContentType, ContentTypeService} from "@/services/api/content";
 import {useDefaultColor} from "@/hooks/useThemeColor";
 import AccordionList, {AccordionItemData} from "@/components/dk/Accordion";
 import DKTextInput from "@/components/dk/TextInput";
@@ -10,15 +9,21 @@ import DKIcon, {DKIconType} from "@/components/dk/Icon";
 import DKButton from "@/components/dk/Button";
 import PickerDropdown from "@/components/dk/Pickeronic";
 import DKError from "@/components/dk/Error";
+import {ContentTypeService} from "@/services/api/v2/ContentTypeService";
+import {ContentType} from "@/types/v2/ContentType";
+import {useAuth} from "@/contexts/AuthContext";
 
 export default function ModuleManager() {
-
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
+    const {user} = useAuth();
 
     const [data, setData] = useState<ContentType[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Admin kontrolü
+    const isAdmin = user?.user_type === 'admin';
 
     const iconOptions = useMemo(() => [
         'home', 'person', 'settings', 'favorite', 'search',
@@ -30,7 +35,7 @@ export default function ModuleManager() {
     const [newContentType, setNewContentType] = useState<Partial<ContentType>>({
         name: '',
         icon: 'home',
-        hasImage: false
+        has_image: false
     });
     const [isAddingNew, setIsAddingNew] = useState(false);
 
@@ -45,12 +50,17 @@ export default function ModuleManager() {
         setNewContentType({
             name: '',
             icon: 'home',
-            hasImage: false
+            has_image: false
         });
         setIsAddingNew(false);
     }, []);
 
     const addNewContentType = async () => {
+        if (!isAdmin) {
+            Alert.alert('Yetki Hatası', 'Bu işlem için admin yetkisi gereklidir.');
+            return;
+        }
+
         if (!newContentType.name?.trim()) {
             Alert.alert('Hata', 'Modül adı boş olamaz!');
             return;
@@ -61,30 +71,20 @@ export default function ModuleManager() {
             return;
         }
 
-        try {
-            showLoading("Yeni modül ekleniyor...");
+        showLoading("Yeni modül ekleniyor...");
 
-            // API çağrısı
-            const response = await ContentTypeService.createContentType({
-                name: newContentType.name.trim(),
-                icon: newContentType.icon || 'home',
-                hasImage: newContentType.hasImage || false
-            } as ContentType);
+        const response = await ContentTypeService.create({
+            name: newContentType.name.trim(),
+            icon: newContentType.icon || 'home',
+            has_image: newContentType.has_image || false
+        });
 
-            if (response.success) {
-                // Başarılı olursa listeyi yenile
-                await loadData();
-                resetNewContentType();
-                Alert.alert('Başarılı', 'Yeni modül başarıyla eklendi!');
-            } else {
-                throw new Error(response.message || 'Modül eklenemedi');
-            }
+        hideLoading();
 
-        } catch (error) {
-            console.error('Ekleme hatası:', error);
-            Alert.alert('Hata', 'Modül eklenirken bir hata oluştu!');
-        } finally {
-            hideLoading();
+        if (response.success) {
+            Alert.alert('Başarılı', 'Yeni modül başarıyla eklendi!');
+            await loadData();
+            resetNewContentType();
         }
     };
 
@@ -96,7 +96,7 @@ export default function ModuleManager() {
 
             setError(null);
 
-            const response = await ContentTypeService.getContentTypes();
+            const response = await ContentTypeService.list();
 
             if (response.success) {
                 setData(response.data);
@@ -114,19 +114,16 @@ export default function ModuleManager() {
         }
     };
 
-
     const handleRefresh = () => {
         setRefreshing(true);
         loadData(true);
     };
 
-
     useEffect(() => {
         loadData();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-
-    const updateItemField = useCallback((itemId: number, field: keyof ContentType, value: any) => {
+    const updateItemField = useCallback((itemId: string, field: keyof ContentType, value: any) => {
         setData(prevData =>
             prevData.map(item =>
                 item.id === itemId
@@ -136,54 +133,79 @@ export default function ModuleManager() {
         );
     }, []);
 
-    const updateItemName = useCallback((itemId: number, newName: string) => {
+    const updateItemName = useCallback((itemId: string, newName: string) => {
         updateItemField(itemId, 'name', newName);
     }, [updateItemField]);
 
-    const updateItemIcon = useCallback((itemId: number, newIcon: string) => {
+    const updateItemIcon = useCallback((itemId: string, newIcon: string) => {
         updateItemField(itemId, 'icon', newIcon);
     }, [updateItemField]);
 
-    const updateItemHasImage = useCallback((itemId: number) => {
+    const updateItemHasImage = useCallback((itemId: string) => {
         setData(prevData =>
             prevData.map(item =>
                 item.id === itemId
-                    ? {...item, hasImage: !item.hasImage}
+                    ? {...item, has_image: !item.has_image}
                     : item
             )
         );
     }, []);
 
     const updateContentType = useCallback(async (item: ContentType) => {
-        try {
-            showLoading("Güncelleniyor...");
-            console.log('Güncellenecek item:', item);
-            await ContentTypeService.updateContentType(item.id, {
-                name: item.name,
-                icon: item.icon,
-                hasImage: item.hasImage,
-            })
-        } catch (error) {
-            console.error('Güncelleme hatası:', error);
+        if (!isAdmin) {
+            Alert.alert('Yetki Hatası', 'Bu işlem için admin yetkisi gereklidir.');
+            return;
+        }
+
+        showLoading("Güncelleniyor...");
+
+        const response = await ContentTypeService.update(item.id.toString(), {
+            name: item.name,
+            icon: item.icon,
+            has_image: item.has_image,
+        });
+
+        hideLoading();
+
+        if (response.success) {
+            Alert.alert('Başarılı', 'Modül güncellendi!');
+            await loadData();
+        } else {
             // Hata durumunda eski veriyi geri yükle
-            loadData();
-        } finally {
-            hideLoading();
+            await loadData();
         }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const deleteContentType = useCallback(async (itemid: number) => {
-        try {
-            showLoading("Siliniyor...");
-            console.log('silinecek item:', itemid);
-        } catch (error) {
-            console.error('Güncelleme hatası:', error);
-            loadData();
-        } finally {
-            hideLoading();
+    const deleteContentType = useCallback(async (itemId: string) => {
+        if (!isAdmin) {
+            Alert.alert('Yetki Hatası', 'Bu işlem için admin yetkisi gereklidir.');
+            return;
         }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+        Alert.alert(
+            'Modül Sil',
+            'Bu modülü silmek istediğinize emin misiniz? Bu işlem geri alınamaz!',
+            [
+                {text: 'İptal', style: 'cancel'},
+                {
+                    text: 'Sil',
+                    style: 'destructive',
+                    onPress: async () => {
+                        showLoading("Siliniyor...");
+
+                        const response = await ContentTypeService.delete(itemId.toString());
+
+                        hideLoading();
+
+                        if (response.success) {
+                            Alert.alert('Başarılı', 'Modül silindi!');
+                            await loadData();
+                        }
+                    }
+                }
+            ]
+        );
+    }, [isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const renderAccordionContentView = useCallback((item: ContentType) => {
         return (
@@ -192,19 +214,24 @@ export default function ModuleManager() {
                     label={"Modül Adı"}
                     value={item.name}
                     onChange={(text) => updateItemName(item.id, text)}
+                    editable={isAdmin}
                 />
                 <DKSwitch
                     label={"Görsel Var Mı?"}
-                    value={item.hasImage}
+                    value={item.has_image}
                     onChange={() => updateItemHasImage(item.id)}
+                    disabled={!isAdmin}
                 />
                 <View style={{
                     flexDirection: "row",
                     marginBottom: 16,
                 }}>
                     <DKIcon name={item.icon} styles={styles.col}/>
-                    <PickerDropdown style={styles.col} selectedValue={item.icon}
-                                    onValueChange={(value) => updateItemIcon(item.id, value)}>
+                    <PickerDropdown
+                        style={styles.col}
+                        selectedValue={item.icon}
+                        onValueChange={(value) => updateItemIcon(item.id, value)}
+                    >
                         {iconOptions.map((icon) => (
                             <PickerDropdown.Item
                                 key={icon}
@@ -215,18 +242,66 @@ export default function ModuleManager() {
                         ))}
                     </PickerDropdown>
                 </View>
-                <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                    <DKButton icon={{name: "delete", size: 20}} onPress={() => deleteContentType(item.id)}
-                              type={'danger'}></DKButton>
-                    <DKButton label={"Güncelle"} onPress={() => updateContentType(item)} type={'primary'}></DKButton>
-                </View>
+                {isAdmin && (
+                    <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                        <DKButton
+                            icon={{name: "delete", size: 20}}
+                            onPress={() => deleteContentType(item.id)}
+                            type={'danger'}
+                        />
+                        <DKButton
+                            label={"Güncelle"}
+                            onPress={() => updateContentType(item)}
+                            type={'primary'}
+                        />
+                    </View>
+                )}
             </View>
-        )
-    }, [iconOptions, updateItemName, updateItemHasImage, updateItemIcon, deleteContentType, updateContentType]);
+        );
+    }, [iconOptions, updateItemName, updateItemHasImage, updateItemIcon, deleteContentType, updateContentType, isAdmin]);
 
     if (error && data.length === 0) {
         return (
-            <DKError errorMessage={error} onPress={loadData}/>
+            <DKError errorMessage={error} onPress={() => loadData()}/>
+        );
+    }
+
+    // Admin değilse sadece görüntüleme modu
+    if (!isAdmin) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <ScrollView
+                    style={styles.scrollView}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                            colors={[colors.tint]}
+                            tintColor={colors.tint}
+                            title="Yenileniyor..."
+                            titleColor={colors.text}
+                        />
+                    }
+                >
+                    <View style={styles.content}>
+                        <View style={styles.infoBox}>
+                            <DKIcon name="info" size={24} color={colors.primary}/>
+                            <Text style={[styles.infoText, {color: colors.text}]}>
+                                Modülleri görüntüleyebilirsiniz. Düzenleme için admin yetkisi gereklidir.
+                            </Text>
+                        </View>
+                        <AccordionList
+                            data={data.map(item => ({
+                                id: item.id,
+                                title: item.name,
+                                icon: item.icon,
+                                content: renderAccordionContentView(item)
+                            } as AccordionItemData))}
+                            showIcon={true}
+                        />
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
         );
     }
 
@@ -246,11 +321,7 @@ export default function ModuleManager() {
                 }
             >
                 <View style={styles.newContentTypeContainer}>
-
-
                     {isAddingNew ? (
-
-
                         <View style={styles.newContentTypeForm}>
                             <View style={styles.newContentTypeHeader}>
                                 <DKIcon name="add-circle" size={24} color={colors.primary}/>
@@ -267,16 +338,19 @@ export default function ModuleManager() {
 
                             <DKSwitch
                                 label="Görsel Var Mı?"
-                                value={newContentType.hasImage || false}
-                                onChange={() => updateNewContentTypeField('hasImage', !newContentType.hasImage)}
+                                value={newContentType.has_image || false}
+                                onChange={() => updateNewContentTypeField('has_image', !newContentType.has_image)}
                             />
 
                             <View style={styles.iconPickerContainer}>
                                 <Text style={[styles.iconLabel, {color: colors.text}]}>İkon Seçin:</Text>
                                 <View style={styles.iconPickerRow}>
                                     <DKIcon name={newContentType.icon || 'home'} styles={styles.iconPreview}/>
-                                    <PickerDropdown style={styles.col}
-                                                    onValueChange={(value) => updateNewContentTypeField('icon', value)}>
+                                    <PickerDropdown
+                                        style={styles.col}
+                                        selectedValue={newContentType.icon || 'home'}
+                                        onValueChange={(value) => updateNewContentTypeField('icon', value)}
+                                    >
                                         {iconOptions.map((icon) => (
                                             <PickerDropdown.Item
                                                 key={icon}
@@ -290,13 +364,25 @@ export default function ModuleManager() {
                             </View>
 
                             <View style={styles.buttonRow}>
-                                <DKButton label={"İptal"} onPress={resetNewContentType} type={'secondary'}></DKButton>
-                                <DKButton label={"Ekle"} onPress={addNewContentType} type={'primary'}></DKButton>
+                                <DKButton
+                                    label={"İptal"}
+                                    onPress={resetNewContentType}
+                                    type={'secondary'}
+                                />
+                                <DKButton
+                                    label={"Ekle"}
+                                    onPress={addNewContentType}
+                                    type={'primary'}
+                                />
                             </View>
                         </View>
                     ) : (
-                        <DKButton label={"Yeni Modül Ekle"} icon={{name: "add", size: 20}}
-                                  onPress={() => setIsAddingNew(true)} type={'primary'}></DKButton>
+                        <DKButton
+                            label={"Yeni Modül Ekle"}
+                            icon={{name: "add", size: 20}}
+                            onPress={() => setIsAddingNew(true)}
+                            type={'primary'}
+                        />
                     )}
                 </View>
                 <View style={styles.content}>
@@ -387,9 +473,11 @@ const styles = StyleSheet.create({
     },
     customContent: {
         backgroundColor: '#fafafa',
-    }, accordionView: {
+    },
+    accordionView: {
         width: '100%'
-    }, col: {
+    },
+    col: {
         flex: 1,
         marginHorizontal: 5,
         justifyContent: 'center',
@@ -400,7 +488,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8f9fa',
         borderRadius: 12,
         padding: 16,
-        marginBottom: 20,
+        margin: 16,
         borderWidth: 1,
         borderColor: '#e9ecef',
     },
@@ -480,5 +568,18 @@ const styles = StyleSheet.create({
     showFormButtonText: {
         color: 'white',
         fontWeight: '600',
+    },
+    infoBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#e3f2fd',
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 16,
+        gap: 12,
+    },
+    infoText: {
+        flex: 1,
+        fontSize: 14,
     },
 });

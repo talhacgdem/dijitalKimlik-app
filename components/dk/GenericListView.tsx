@@ -10,15 +10,14 @@ import DKCard from "@/components/dk/Card";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 import DKPagination from "@/components/dk/Pagination";
 import {modalStyles} from "@/constants/Styles";
-import {ContentItem} from "@/types/ContentTypes";
-import {ContentService} from "@/services/api/content";
+import {Content} from "@/types/v2/Content";
+import {ContentService} from "@/services/api/v2/ContentService";
 import DKDivider from "@/components/dk/Divider";
 import DKError from "@/components/dk/Error";
 import DKButton from "@/components/dk/Button";
 
 
 interface GenericListViewProps {
-    contentApiService: ContentService;
     emptyMessage?: string;
     loadingMessage?: string;
     modalHeader?: string;
@@ -26,7 +25,6 @@ interface GenericListViewProps {
 }
 
 export default function GenericListView({
-                                            contentApiService,
                                             emptyMessage = 'Görüntülenecek öğe bulunamadı',
                                             loadingMessage = 'Yükleniyor...',
                                             hasImage = false
@@ -34,10 +32,10 @@ export default function GenericListView({
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
 
-    const [data, setData] = useState<ContentItem[]>([]);
+    const [data, setData] = useState<Content[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<Content | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [pagination, setPagination] = useState({
         currentPage: 1,
@@ -53,14 +51,16 @@ export default function GenericListView({
 
             setError(null);
 
-            const response = await contentApiService.getContents(page);
+            const response = await ContentService.getContents(20, page, '');
 
             if (response.success) {
                 setData(response.data);
-                setPagination({
-                    currentPage: response.meta.current_page,
-                    lastPage: response.meta.last_page,
-                });
+                if (response.meta) {
+                    setPagination({
+                        currentPage: response.meta.current_page,
+                        lastPage: response.meta.last_page,
+                    });
+                }
             } else {
                 setError(response.message || 'Veriler yüklenemedi');
             }
