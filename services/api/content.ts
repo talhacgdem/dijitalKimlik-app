@@ -67,6 +67,7 @@ export class ContentService {
     }
 
     async createContent(data: Partial<NewContentRequest>): Promise<ContentResponse> {
+        data = {content_type_id: this.contentTypeId, ...data}
         console.log("create content api", data);
         return await apiClient.post<ContentResponse>(`${BASE_API_URL}/content?type=${this.contentTypeId}`, data);
     }
@@ -97,6 +98,7 @@ export type ContentItem = {
 }
 
 export type NewContentRequest = {
+    content_type_id: string;
     title: string;
     content: string;
     image?: string;
