@@ -2,27 +2,24 @@ import React, {useEffect, useState} from 'react';
 import {Alert, FlatList, Image, RefreshControl, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import {ImagePickerAsset} from 'expo-image-picker';
 import {useDefaultColor} from '@/hooks/useThemeColor';
-import DKModal from "@/components/dk/Modal";
-import DKTextInput from "@/components/dk/TextInput";
 import {useGlobalLoading} from "@/contexts/LoadingContext";
-import DKPagination from "@/components/dk/Pagination";
 import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
-import {UserApiService} from '@/services/api/user';
-import {UserDto} from '@/types/AuthDto';
-import {NewUserRequest, UpdateUserRequest} from '@/types/UserTypes';
-import DKUserCard from "@/components/dk/CardUser";
+import {UserService} from '@/services/api/UserService';
+import {User, UserCreateRequest, UserUpdateRequest} from '@/types/v2/User';
+import DKButton from '@/components/dk/Button';
 import DKError from "@/components/dk/Error";
-import DKButton from './Button';
+import DKModal from "@/components/dk/Modal";
+import DKPagination from "@/components/dk/Pagination";
+import DKTextInput from "@/components/dk/TextInput";
+import DKUserCard from "@/components/dk/CardUser";
 
 interface AdminUserListViewProps {
-    userApiService: UserApiService;
     title?: string;
     loadingMessage?: string;
     emptyMessage?: string;
 }
 
 export default function AdminUserListView({
-                                              userApiService,
                                               title = 'Kullanıcı Yönetimi',
                                               loadingMessage = 'Kullanıcılar yükleniyor...',
                                               emptyMessage = 'Henüz kullanıcı bulunmuyor'
@@ -30,10 +27,10 @@ export default function AdminUserListView({
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
 
-    const [data, setData] = useState<UserDto[]>([]);
+    const [data, setData] = useState<User[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedItem, setSelectedItem] = useState<UserDto | null>(null);
+    const [selectedItem, setSelectedItem] = useState<User | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [pagination, setPagination] = useState({
         currentPage: 1,
@@ -41,7 +38,7 @@ export default function AdminUserListView({
     });
 
     const [editMode, setEditMode] = useState(false);
-    const [formData, setFormData] = useState<Partial<NewUserRequest & UpdateUserRequest>>({});
+    const [formData, setFormData] = useState<Partial<UserCreateRequest & UserUpdateRequest>>({});
     const [selectedImage, setSelectedImage] = useState<ImagePickerAsset | null>(null);
 
     const loadData = async (page: number = 1, isRefresh: boolean = false) => {
@@ -52,14 +49,16 @@ export default function AdminUserListView({
 
             setError(null);
 
-            const response = await userApiService.getUsers(page);
+            const response = await UserService.list({page: page});
 
             if (response.success) {
                 setData(response.data);
-                setPagination({
-                    currentPage: response.meta.current_page,
-                    lastPage: response.meta.last_page,
-                });
+                if (response.meta) {
+                    setPagination({
+                        currentPage: response.meta.current_page,
+                        lastPage: response.meta.last_page,
+                    });
+                }
             } else {
                 setError(response.message || 'Kullanıcılar yüklenemedi');
             }
@@ -87,7 +86,7 @@ export default function AdminUserListView({
         loadData(1, true);
     };
 
-    const handleOpenModal = (item?: UserDto) => {
+    const handleOpenModal = (item?: User) => {
         if (item) {
             setEditMode(true);
             setFormData({
@@ -101,13 +100,13 @@ export default function AdminUserListView({
         } else {
             setEditMode(false);
             setFormData({
-                identity_number: null,
-                name: null,
-                phone: null,
-                email: null,
-                job: null,
-                image: null,
-                password: null
+                identity_number: 'undefined',
+                name: 'undefined',
+                phone: 'undefined',
+                email: 'undefined',
+                job: 'undefined',
+                image: 'undefined',
+                password: 'undefined'
             });
             setSelectedItem(null);
         }
@@ -153,18 +152,18 @@ export default function AdminUserListView({
         };
 
         if (editMode && selectedItem != null) {
-            const updateData: Partial<UpdateUserRequest> = dataToSave;
-            await userApiService.updateUser(selectedItem.identity_number, updateData);
+            const updateData: Partial<UserUpdateRequest> = dataToSave;
+            await UserService.update(selectedItem.id, updateData);
         } else {
-            const createData: Partial<NewUserRequest> = dataToSave;
-            await userApiService.createUser(createData);
+            const createData: Partial<UserCreateRequest> = dataToSave;
+            await UserService.create(createData);
         }
 
         resetModal();
         await loadData();
     };
 
-    const handleDelete = async (item: UserDto) => {
+    const handleDelete = async (item: User) => {
         Alert.alert('Kullanıcıyı Sil', 'Bu kullanıcıyı silmek istediğinize emin misiniz?', [
             {text: 'İptal', style: 'cancel'},
             {
@@ -172,7 +171,7 @@ export default function AdminUserListView({
                 style: 'destructive',
                 onPress: async () => {
                     try {
-                        await userApiService.deleteUser(item.identity_number);
+                        await UserService.delete(item.id);
                         await loadData();
                     } catch (e) {
                         Alert.alert('Hata', 'Silme sırasında bir sorun oluştu.');

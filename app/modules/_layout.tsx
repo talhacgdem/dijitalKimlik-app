@@ -1,5 +1,4 @@
 import {useLocalSearchParams} from 'expo-router';
-import {createContentService} from "@/services/api/content";
 import {SafeAreaView} from "react-native-safe-area-context";
 import DKHeader from "@/components/dk/Header";
 import GenericListView from "@/components/dk/GenericListView";
@@ -14,8 +13,6 @@ export default function ContentPage() {
         icon: DKIconType
     }>();
 
-    const service = createContentService(id, name);
-
     return (
         <SafeAreaView style={{flex: 1}}>
             <DKHeader
@@ -24,7 +21,7 @@ export default function ContentPage() {
             />
 
             <GenericListView
-                contentApiService={service}
+                contentId={id}
                 emptyMessage="Görüntülenecek kayıt bulunamadı"
                 loadingMessage={name + " yükleniyor..."}
                 modalHeader="Detay"

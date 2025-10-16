@@ -1,7 +1,7 @@
 // src/services/api/services/ContentService.ts
 import {ContentResponse} from '@/types/v2/Content';
 import {BaseModel} from '@/types/v2/Base';
-import {apiClient} from "@/services/api/v2/client";
+import {apiClient} from "@/services/api/client";
 
 export class ContentService {
     static async list(params?: {

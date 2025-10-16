@@ -9,7 +9,7 @@ import DKIcon, {DKIconType} from "@/components/dk/Icon";
 import DKButton from "@/components/dk/Button";
 import PickerDropdown from "@/components/dk/Pickeronic";
 import DKError from "@/components/dk/Error";
-import {ContentTypeService} from "@/services/api/v2/ContentTypeService";
+import {ContentTypeService} from "@/services/api/ContentTypeService";
 import {ContentType} from "@/types/v2/ContentType";
 import {useAuth} from "@/contexts/AuthContext";
 

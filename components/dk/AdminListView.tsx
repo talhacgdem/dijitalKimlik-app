@@ -13,7 +13,7 @@ import DKError from "@/components/dk/Error";
 import DKButton from "@/components/dk/Button";
 import {useAuth} from "@/contexts/AuthContext";
 import {Content} from '@/types/v2/Content'
-import {ContentService} from '@/services/api/v2/ContentService'
+import {ContentService} from '@/services/api/ContentService'
 
 
 interface AdminListViewProps {

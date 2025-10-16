@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {apiClient} from '@/services/api/v2/client';
+import {apiClient} from '@/services/api/client';
 import {TokenStorage} from '@/services/storage';
 import { UserDto } from '@/types/AuthDto';
 import {toastManager} from "@/services/ToastManager";

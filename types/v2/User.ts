@@ -1,7 +1,8 @@
 import {BaseModel} from "@/types/v2/Base";
 
-interface User {
+export interface User {
     id: string,
+    identity_number: string;
     email: string,
     name: string,
     phone: string,
@@ -17,3 +18,22 @@ interface User {
 }
 
 export type UserResponse = BaseModel<User>
+
+export interface UserUpdateRequest{
+    identity_number?: string;
+    email?: string;
+    name?: string;
+    phone?: string;
+    job?: string;
+    image?:string;
+}
+
+export interface UserCreateRequest{
+    email?: string;
+    password?: string;
+    password_confirmation?: string;
+    name?: string;
+    phone?: string;
+    job?: string;
+    image?:string;
+}

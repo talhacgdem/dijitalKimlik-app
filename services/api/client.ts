@@ -1,17 +1,23 @@
 // src/services/api/client.ts
-import axios, {AxiosError, AxiosInstance, AxiosRequestConfig, isAxiosError} from 'axios';
+import axios, {AxiosError, AxiosInstance, AxiosRequestConfig} from 'axios';
 import {TokenStorage} from '../storage';
-import {LoginResponseDTO} from "@/types/AuthDto";
 import {BASE_API_URL} from './Endpoints';
 import {toastManager} from '../ToastManager';
-import {BaseResponse} from "@/types/baseTypes";
 import {Alert} from 'react-native';
+import {AuthResponse} from "@/types/v2/Auth";
+import {BaseModel} from "@/types/v2/Base";
 
-// API URL'leri // Örnek URL, gerçek URL ile değiştirilmeli
+// Hata callback tipi
+type ErrorCallback = (error: AxiosError) => void;
 
 class ApiClient {
     private readonly axiosInstance: AxiosInstance;
     private accessToken: string | null = null;
+    private tokenExpiryTime: Date | null = null;
+    private isRefreshing: boolean = false;
+    private refreshSubscribers: ((token: string) => void)[] = [];
+    private onUnauthorized?: () => void; // Login sayfasına yönlendirme callback'i
+    private globalErrorHandler?: ErrorCallback; // Global hata handler
 
     constructor() {
         this.axiosInstance = axios.create({
@@ -26,10 +32,23 @@ class ApiClient {
         this.setupInterceptors();
     }
 
+    // Login sayfasına yönlendirme callback'ini ayarla
+    setOnUnauthorized(callback: () => void): void {
+        this.onUnauthorized = callback;
+    }
+
+    // Global hata handler'ı ayarla (opsiyonel, özel durumlar için)
+    setGlobalErrorHandler(callback: ErrorCallback): void {
+        this.globalErrorHandler = callback;
+    }
+
     private setupInterceptors(): void {
         // İstek interceptor'ı
         this.axiosInstance.interceptors.request.use(
             async (config) => {
+                // Token süresini kontrol et ve gerekirse yenile
+                await this.checkAndRefreshToken();
+
                 // Her istekte access token varsa ekle
                 if (this.accessToken) {
                     config.headers.Authorization = `Bearer ${this.accessToken}`;
@@ -60,37 +79,41 @@ class ApiClient {
                 if (error.response?.status === 401 && !originalRequest._retry) {
                     originalRequest._retry = true;
 
-                    try {
-                        // Refresh token ile yeni access token al
-                        const refreshToken = await TokenStorage.getRefreshToken();
-                        if (!refreshToken) {
-                            // Refresh token yoksa login sayfasına yönlendir
-                            this.redirectToLogin();
-                            return Promise.reject(error);
-                        }
-
-                        const response = await this.refreshAccessToken(refreshToken);
-                        if (response) {
-                            // Yeni token ile isteği tekrarla
-                            this.setAccessToken(response.access_token);
-                            await TokenStorage.saveRefreshToken(response.refresh_token);
-
-                            if (originalRequest.headers) {
-                                originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
-                            }
-
-                            return this.axiosInstance(originalRequest);
-                        }
-                    } catch (refreshError) {
-                        console.error('Token yenileme hatası:', refreshError);
-                        // Token yenileme başarısız, login sayfasına yönlendir
+                    const refreshToken = await TokenStorage.getRefreshToken();
+                    if (!refreshToken) {
+                        // Refresh token yoksa login sayfasına yönlendir
                         this.redirectToLogin();
-                        return Promise.reject(refreshError);
+                        return Promise.reject(error);
+                    }
+
+                    const authResponse = await this.refreshAccessToken(refreshToken);
+                    if (authResponse && authResponse.success) {
+                        // Yeni token ile isteği tekrarla
+                        this.setAccessToken(
+                            authResponse.data.access_token,
+                            authResponse.data.expires_in
+                        );
+                        await TokenStorage.saveRefreshToken(authResponse.data.refresh_token);
+
+                        if (originalRequest.headers) {
+                            originalRequest.headers.Authorization = `Bearer ${authResponse.data.access_token}`;
+                        }
+
+                        return this.axiosInstance(originalRequest);
+                    } else {
+                        this.redirectToLogin();
+                        return Promise.reject(error);
                     }
                 }
 
                 // Hata mesajını göster
                 this.handleApiError(error);
+
+                // Global error handler varsa çağır
+                if (this.globalErrorHandler) {
+                    this.globalErrorHandler(error);
+                }
+
                 return Promise.reject(error);
             }
         );
@@ -102,22 +125,13 @@ class ApiClient {
         let alertDetails = '';
 
         if (error.response) {
-            const data = error.response.data as BaseResponse;
+            const data = error.response.data as BaseModel<any>;
 
             // Validation hatası kontrolü
-            if (data.errors && Object.keys(data.errors).length > 0) {
+            if (data.errors && data.errors.length > 0) {
                 showAlert = true;
                 errorMessage = data.message || 'Doğrulama hatası oluştu';
-
-                // Hata detaylarını formatla
-                const errorDetails: string[] = [];
-                Object.entries(data.errors).forEach(([field, messages]) => {
-                    messages.forEach(message => {
-                        errorDetails.push(`${field}: ${message}`);
-                    });
-                });
-
-                alertDetails = errorDetails.join('\n');
+                alertDetails = data.errors.join('\n');
             } else {
                 // Normal hata mesajı
                 errorMessage = data.message || errorMessage;
@@ -128,7 +142,7 @@ class ApiClient {
 
         if (showAlert) {
             // Alert box ile detaylı hata göster
-            Alert.alert("Hata",`${errorMessage}\n\nDetaylar:\n${alertDetails}`);
+            Alert.alert("Hata", `${errorMessage}\n\nDetaylar:\n${alertDetails}`);
         } else {
             // Normal toast mesajı
             toastManager.error(errorMessage, {
@@ -139,121 +153,238 @@ class ApiClient {
     }
 
     private redirectToLogin(): void {
-        // Global state veya navigation ile login sayfasına yönlendirme
-        // Bu fonksiyon, AuthContext içerisinden inject edilebilir
         console.log('Oturum sonlandı, giriş sayfasına yönlendiriliyor...');
-        // Örnek: navigation.navigate('Login')
+        this.clearAccessToken();
+        TokenStorage.removeRefreshToken();
+
+        if (this.onUnauthorized) {
+            this.onUnauthorized();
+        }
     }
 
-    // Access token ayarla (bellek üzerinde)
-    setAccessToken(token: string): void {
+    // Token süresini kontrol et ve gerekirse yenile
+    private async checkAndRefreshToken(): Promise<void> {
+        if (!this.tokenExpiryTime || !this.accessToken) {
+            return;
+        }
+
+        const now = new Date().getTime();
+        const expiryTime = this.tokenExpiryTime.getTime();
+
+        // Token süresi 5 dakikadan az kaldıysa yenile
+        if (expiryTime - now < 300000) {
+            if (this.isRefreshing) {
+                // Zaten yenileme işlemi devam ediyorsa, bekle
+                return new Promise((resolve) => {
+                    this.refreshSubscribers.push(() => {
+                        resolve();
+                    });
+                });
+            }
+
+            this.isRefreshing = true;
+            console.log('Token süresi dolmak üzere, yenileniyor...');
+
+            const refreshToken = await TokenStorage.getRefreshToken();
+            if (refreshToken) {
+                const authResponse = await this.refreshAccessToken(refreshToken);
+                if (authResponse && authResponse.success) {
+                    this.setAccessToken(
+                        authResponse.data.access_token,
+                        authResponse.data.expires_in
+                    );
+                    await TokenStorage.saveRefreshToken(authResponse.data.refresh_token);
+
+                    this.onTokenRefreshed(authResponse.data.access_token);
+                    console.log('Token başarıyla yenilendi!');
+                }
+            }
+
+            this.isRefreshing = false;
+        }
+    }
+
+    private onTokenRefreshed(token: string): void {
+        this.refreshSubscribers.forEach((callback) => callback(token));
+        this.refreshSubscribers = [];
+    }
+
+    setAccessToken(token: string, expiresIn: number): void {
         this.accessToken = token;
+        const expiryTime = new Date(Date.now() + expiresIn * 1000);
+        this.tokenExpiryTime = expiryTime;
+
+        console.log('Access token ayarlandı. Süre bitiş:', expiryTime.toISOString());
     }
 
-    // Access token temizle
     clearAccessToken(): void {
         this.accessToken = null;
+        this.tokenExpiryTime = null;
     }
 
-    // Refresh token ile yeni access token al
-    async refreshAccessToken(refreshToken: string): Promise<LoginResponseDTO | null> {
+    async refreshAccessToken(refreshToken: string): Promise<AuthResponse | null> {
         try {
-            let data = {refresh_token: refreshToken}
+            const data = {refresh_token: refreshToken};
 
-            console.log('Token yenileme isteği gönderiliyor:', `${BASE_API_URL}/auth/refresh`);
+            console.log('Token yenileme isteği gönderiliyor');
 
-            const response = await axios.post<LoginResponseDTO>(
-                `${BASE_API_URL}/auth/refresh`,
+            const response = await axios.post<AuthResponse>(
+                `${BASE_API_URL}/auth/refresh-token`,
                 data,
                 {
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                     },
                 }
             );
 
-            console.log('Token yenileme başarılı:', {
-                accessTokenLength: response.data.access_token.length,
-                refreshTokenLength: response.data.refresh_token.length,
-                expiresIn: response.data.expires_in
-            });
+            if (response.data.success) {
+                console.log('Token yenileme başarılı');
+            }
 
             return response.data;
         } catch (error) {
             console.error('Token yenileme başarısız:', error);
-            toastManager.error("Oturum süresi doldu. Lütfen tekrar giriş yapın.", {
-                duration: 4000,
-                position: 'bottom',
-            })
-
-            // Daha detaylı hata loglaması
-            if (isAxiosError(error)) {
-                console.error('Hata detayları:', {
-                    status: error.response?.status,
-                    statusText: error.response?.statusText,
-                    data: error.response?.data
-                });
-            }
-
             return null;
         }
     }
 
-
-    // Login işlemi
-    async login(username: string, password: string): Promise<LoginResponseDTO> {
-        const response = await this.axiosInstance.post<LoginResponseDTO>(BASE_API_URL + '/auth/login', {
-            email: username,
-            password: password,
+    async login(email: string, password: string): Promise<AuthResponse> {
+        const response = await this.axiosInstance.post<AuthResponse>('/auth/login', {
+            email,
+            password,
         });
 
-        // Access token'ı belleğe kaydet
-        this.setAccessToken(response.data.access_token);
-
-        // Refresh token'ı güvenli depolamaya kaydet
-        await TokenStorage.saveRefreshToken(response.data.refresh_token);
+        if (response.data.success) {
+            this.setAccessToken(
+                response.data.data.access_token,
+                response.data.data.expires_in
+            );
+            await TokenStorage.saveRefreshToken(response.data.data.refresh_token);
+            console.log('Login başarılı! Kullanıcı:', response.data.data.user.email);
+        }
 
         return response.data;
     }
 
-    // Çıkış işlemi
-    async logout(): Promise<void> {
-        try {
-            // Sunucuya çıkış isteği gönder
-            await this.axiosInstance.get(BASE_API_URL + '/auth/logout');
-        } catch (error) {
-            console.error('Çıkış hatası:', error);
-        } finally {
-            // Yerel tokenları temizle
-            this.clearAccessToken();
-            await TokenStorage.removeRefreshToken();
+    async register(data: {
+        email: string;
+        password: string;
+        password_confirmation: string;
+        name: string;
+        phone: string;
+        job: string;
+    }): Promise<AuthResponse> {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
+
+        const response = await this.axiosInstance.post<AuthResponse>(
+            '/auth/register',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+
+        if (response.data.success) {
+            console.log('Kayıt başarılı! Email doğrulama gerekiyor.');
         }
+
+        return response.data;
     }
 
-    // Genel GET isteği
+    async verifyEmail(token: string): Promise<BaseModel<any>> {
+        const response = await this.axiosInstance.get<BaseModel<any>>(
+            `/auth/verify-email?token=${token}`
+        );
+        return response.data;
+    }
+
+    async forgotPassword(email: string): Promise<BaseModel<any>> {
+        const response = await this.axiosInstance.post<BaseModel<any>>(
+            '/auth/forgot-password',
+            {email}
+        );
+        return response.data;
+    }
+
+    async resetPassword(data: {
+        token: string;
+        password: string;
+        password_confirmation: string;
+    }): Promise<BaseModel<any>> {
+        const response = await this.axiosInstance.post<BaseModel<any>>(
+            '/auth/reset-password',
+            data
+        );
+        return response.data;
+    }
+
+    async getCurrentUser(): Promise<BaseModel<any>> {
+        const response = await this.axiosInstance.get<BaseModel<any>>('/auth/me');
+        return response.data;
+    }
+
+    async logout(): Promise<void> {
+        await this.axiosInstance.post('/auth/logout');
+        console.log('Logout başarılı! Tokenlar temizlendi.');
+        this.clearAccessToken();
+        await TokenStorage.removeRefreshToken();
+    }
+
+    async updateProfile(data: {
+        email?: string;
+        phone?: string;
+        name?: string;
+        job?: string;
+    }): Promise<BaseModel<any>> {
+        const response = await this.axiosInstance.put<BaseModel<any>>(
+            '/profile',
+            data
+        );
+        return response.data;
+    }
+
     async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.get<T>(url, config);
         return response.data;
     }
 
-    // Genel POST isteği
     async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.post<T>(url, data, config);
         return response.data;
     }
 
-    // Genel PUT isteği
+    async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+        const response = await this.axiosInstance.put<T>(url, data, config);
+        return response.data;
+    }
+
     async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.patch<T>(url, data, config);
         return response.data;
     }
 
-    // Genel DELETE isteği
     async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.delete<T>(url, config);
         return response.data;
     }
+
+    async postFormData<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
+        const response = await this.axiosInstance.post<T>(url, formData, {
+            ...config,
+            headers: {
+                ...config?.headers,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    }
 }
 
-// Singleton instance
 export const apiClient = new ApiClient();

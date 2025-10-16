@@ -1,7 +1,7 @@
 // src/services/api/services/AuthService.ts
 import {AuthResponse} from '@/types/v2/Auth';
 import {BaseModel} from '@/types/v2/Base';
-import {apiClient} from "@/services/api/v2/client";
+import {apiClient} from "@/services/api/client";
 
 export class AuthService {
     static async login(email: string, password: string): Promise<AuthResponse> {

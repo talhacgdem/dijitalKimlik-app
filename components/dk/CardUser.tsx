@@ -2,12 +2,12 @@ import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {BASE_STORAGE_URL} from '@/services/api/Endpoints';
 import {useDefaultColor} from '@/hooks/useThemeColor';
-import {UserDto} from '@/types/AuthDto';
 import DKButton from "@/components/dk/Button";
+import {User} from "@/types/v2/User";
 
 interface UserCardProps {
-    user: UserDto;
-    onPress?: (user: UserDto) => void;
+    user: User;
+    onPress?: (user: User) => void;
     controlItems?: {
         onEdit: () => void;
         onRemove: () => void;

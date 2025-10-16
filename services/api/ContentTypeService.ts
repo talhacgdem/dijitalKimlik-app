@@ -1,7 +1,7 @@
 // src/services/api/services/ContentTypeService.ts
 import {ContentTypeResponse} from '@/types/v2/ContentType';
 import {BaseModel} from '@/types/v2/Base';
-import {apiClient} from "@/services/api/v2/client";
+import {apiClient} from "@/services/api/client";
 
 export class ContentTypeService {
     static async list(): Promise<ContentTypeResponse> {

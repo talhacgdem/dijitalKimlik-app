@@ -1,6 +1,6 @@
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from "react";
-import {ContentTypeService} from "@/services/api/v2/ContentTypeService";
+import {ContentTypeService} from "@/services/api/ContentTypeService";
 import {useGlobalLoading} from "@/contexts/LoadingContext";
 import DKDivider from '@/components/dk/Divider';
 import DKButtonMenu from "@/components/dk/ButtonMenu";

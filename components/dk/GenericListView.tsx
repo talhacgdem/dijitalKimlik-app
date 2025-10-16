@@ -11,13 +11,14 @@ import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
 import DKPagination from "@/components/dk/Pagination";
 import {modalStyles} from "@/constants/Styles";
 import {Content} from "@/types/v2/Content";
-import {ContentService} from "@/services/api/v2/ContentService";
+import {ContentService} from "@/services/api/ContentService";
 import DKDivider from "@/components/dk/Divider";
 import DKError from "@/components/dk/Error";
 import DKButton from "@/components/dk/Button";
 
 
 interface GenericListViewProps {
+    contentId: string,
     emptyMessage?: string;
     loadingMessage?: string;
     modalHeader?: string;
@@ -25,6 +26,7 @@ interface GenericListViewProps {
 }
 
 export default function GenericListView({
+                                            contentId,
                                             emptyMessage = 'Görüntülenecek öğe bulunamadı',
                                             loadingMessage = 'Yükleniyor...',
                                             hasImage = false
@@ -51,7 +53,7 @@ export default function GenericListView({
 
             setError(null);
 
-            const response = await ContentService.getContents(20, page, '');
+            const response = await ContentService.list({page: page, content_type_id: contentId});
 
             if (response.success) {
                 setData(response.data);
@@ -84,7 +86,7 @@ export default function GenericListView({
         loadData(1, true);
     };
 
-    const handleItemPress = (item: ContentItem) => {
+    const handleItemPress = (item: Content) => {
         setSelectedItem(item);
         setModalVisible(true);
     };
@@ -105,7 +107,7 @@ export default function GenericListView({
         );
     }
 
-    const renderContentItem = (item: ContentItem, hasImage: boolean) => {
+    const renderContentItem = (item: Content, hasImage: boolean) => {
         if (hasImage) {
             return (
                 <DKCard

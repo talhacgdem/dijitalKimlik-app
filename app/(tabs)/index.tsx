@@ -1,10 +1,11 @@
 import {ScrollView, Text, View} from 'react-native';
-import {ContentType, ContentTypeService} from "@/services/api/content";
+import {ContentTypeService} from "@/services/api/ContentTypeService";
 import React, {useEffect, useState} from "react";
 import {useGlobalLoading} from '@/contexts/LoadingContext';
 import DKButtonMenu from "@/components/dk/ButtonMenu";
 import DKError from "@/components/dk/Error";
 import {useFocusEffect} from "expo-router";
+import {ContentType} from "@/types/v2/ContentType";
 
 export default function Index() {
     const {showLoading, hideLoading} = useGlobalLoading();
@@ -15,7 +16,7 @@ export default function Index() {
         try {
             showLoading("Menüler yükleniyor");
             setError(null);
-            const response = await ContentTypeService.getContentTypes();
+            const response = await ContentTypeService.list();
             if (response.success) {
                 setData(response.data);
             } else {
@@ -76,7 +77,7 @@ export default function Index() {
                             id: item.id.toString(),
                             name: item.name,
                             icon: item.icon,
-                            hasImage: item.hasImage.toString()
+                            hasImage: item.has_image ? 'true' : 'false'
                         }}
                     ></DKButtonMenu>
                 ))}
