@@ -7,8 +7,9 @@ export class ContentService {
     static async list(params?: {
         per_page?: number;
         page?: number;
-        content_type_id?: string;
+        content_type_id: string;
     }): Promise<ContentResponse> {
+        console.info(params);
         return apiClient.get<ContentResponse>('/contents', {params});
     }
 

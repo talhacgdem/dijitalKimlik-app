@@ -11,7 +11,7 @@ import DKError from "@/components/dk/Error";
 import DKModal from "@/components/dk/Modal";
 import DKPagination from "@/components/dk/Pagination";
 import DKTextInput from "@/components/dk/TextInput";
-import DKUserCard from "@/components/dk/CardUser";
+import DKUserCard from "@/components/dk/card/UserCard";
 
 interface AdminUserListViewProps {
     title?: string;

@@ -73,12 +73,7 @@ export default function Index() {
                         icon={item.icon}
                         label={item.name}
                         pathname={'/modules'}
-                        params={{
-                            id: item.id.toString(),
-                            name: item.name,
-                            icon: item.icon,
-                            hasImage: item.has_image ? 'true' : 'false'
-                        }}
+                        params={{contentTypeData: JSON.stringify(item)}}
                     ></DKButtonMenu>
                 ))}
             </ScrollView>

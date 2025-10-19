@@ -2,12 +2,14 @@
 import {Stack, useLocalSearchParams, useRouter} from 'expo-router';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKButton from "@/components/dk/Button";
+import {ContentType} from "@/types/v2/ContentType";
 
 export default function ModulesLayout() {
     const router = useRouter();
     const colors = useDefaultColor();
 
-    const {name} = useLocalSearchParams<{ name: string }>();
+    const {contentTypeData} = useLocalSearchParams<{ contentTypeData: string }>();
+    let contentType: ContentType = JSON.parse(contentTypeData)["contentType"] as ContentType;
 
     return (
         <Stack
@@ -36,7 +38,7 @@ export default function ModulesLayout() {
             />
             <Stack.Screen
                 name="modules"
-                options={{title: name + ' (Admin)'}}
+                options={{title: contentType.name + ' (Admin)'}}
             />
         </Stack>
     );

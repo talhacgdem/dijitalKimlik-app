@@ -7,6 +7,7 @@ import DKButtonMenu from "@/components/dk/ButtonMenu";
 import DKError from "@/components/dk/Error";
 import {useFocusEffect} from "expo-router";
 import {DKIconType} from "@/components/dk/Icon";
+import {ContentType} from "@/types/v2/ContentType";
 
 type MenuItemProps = {
     icon: DKIconType;
@@ -14,7 +15,7 @@ type MenuItemProps = {
     route: string;
     static: boolean;
     color?: string;
-    contentTypeId?: string;
+    contentType?: ContentType;
     contentTypeHasImage: boolean;
 }
 
@@ -53,7 +54,7 @@ export default function Index() {
                     icon: item.icon,
                     route: '/admin/modules',
                     static: false,
-                    contentTypeId: item.id,
+                    contentType: item,
                     contentTypeHasImage: item.has_image.toString() === 'true',
                 }));
 
@@ -79,7 +80,7 @@ export default function Index() {
     );
     useEffect(() => {
         loadData();
-    }, []) ;// eslint-disable-line react-hooks/exhaustive-deps
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     // Hata durumu
     if (error) {
@@ -120,12 +121,7 @@ export default function Index() {
                         icon={item.icon}
                         label={item.label}
                         pathname={"/admin/modules"}
-                        params={{
-                            id: item.contentTypeId ? item.contentTypeId.toString() : '0',
-                            name: item.label,
-                            icon: item.icon,
-                            hasImage: item.contentTypeHasImage.toString()
-                        }}
+                        params={{contentTypeData: JSON.stringify(item)}}
                     ></DKButtonMenu>
                 ))}
 

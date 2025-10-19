@@ -1,21 +1,10 @@
 import {useLocalSearchParams} from 'expo-router';
 import React from "react";
-import AdminListView from "@/components/dk/AdminListView";
+import ContentListView from "@/components/dk/ContentListView";
+import {ContentType} from "@/types/v2/ContentType";
 
 export default function ContentPage() {
-    const {id, name, hasImage} = useLocalSearchParams<{
-        id: string,
-        name: string,
-        hasImage: string
-    }>();
-
-
-    return (
-        <AdminListView
-            emptyMessage="Görüntülenecek kayıt bulunamadı"
-            loadingMessage={name + " yükleniyor..."}
-            hasImage={hasImage === "1"}
-            contentTypeId={id}
-        />
-    );
+    const {contentTypeData} = useLocalSearchParams<{ contentTypeData: string }>();
+    let contentType: ContentType = JSON.parse(contentTypeData)["contentType"] as ContentType;
+    return (<ContentListView contentType={contentType} isAdmin={true}/>);
 }
