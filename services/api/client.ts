@@ -310,7 +310,10 @@ class ApiClient {
     async postFormData<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
         const response = await this.axiosInstance.post<T>(url, formData, {
             ...config,
+            timeout: 60000,
             headers: {
+                'Content-Type': 'multipart/form-data',
+                ...config?.headers,
             },
         });
         return response.data;

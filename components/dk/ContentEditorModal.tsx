@@ -68,16 +68,19 @@ export default function ContentEditorModal({
 
         if (!result.canceled && result.assets[0]) {
             const asset = result.assets[0];
+            const filename = asset.uri.split('/').pop() || 'photo.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : 'image/jpeg';
             const file = {
                 uri: asset.uri,
-                type: asset.type ?? 'image/jpeg',
-                name: asset.fileName ?? 'upload.jpg'
-            } as unknown as File;
-
-            setFormData({...formData, uploadedImage: file});
+                type: type,
+                name: filename,
+            };
+            setFormData({...formData, uploadedImage: file as any});
             setSelectedImageUri(asset.uri);
         }
     };
+
 
     const handleSave = async () => {
         if (!formData.title || !formData.content) {

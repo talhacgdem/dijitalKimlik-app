@@ -18,32 +18,22 @@ export class ContentService {
 
     static async create(data: ContentAddRequest): Promise<BaseModel<any>> {
         const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            if (value !== undefined) {
-                formData.append(key, value);
-            }
-        });
-
+        formData.append('content_type_id', data.content_type_id);
+        formData.append('title', data.title);
+        formData.append('content', data.content);
+        if (data.image) {
+            formData.append('image', data.image as any);
+        }
         return apiClient.postFormData<BaseModel<any>>('/contents', formData);
     }
 
-    static async update(id: string, data: {
-        content_type_id?: string;
-        title?: string;
-        content?: string;
-        image?: File;
-        start_date?: string;
-        end_date?: string;
-    }): Promise<BaseModel<any>> {
+    static async update(id: string, data: ContentAddRequest): Promise<BaseModel<any>> {
         const formData = new FormData();
-        formData.append('_method', 'PUT');
-
-        Object.entries(data).forEach(([key, value]) => {
-            if (value !== undefined) {
-                formData.append(key, value);
-            }
-        });
-
+        formData.append('title', data.title);
+        formData.append('content', data.content);
+        if (data.image) {
+            formData.append('image', data.image as any);
+        }
         return apiClient.postFormData<BaseModel<any>>(`/contents/${id}`, formData);
     }
 
