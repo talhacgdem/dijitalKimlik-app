@@ -15,9 +15,10 @@ import ContentViewerModal from "@/components/dk/ContentViewerModal";
 interface AdminListViewProps {
     contentType: ContentType;
     isAdmin?: boolean;
+    title?: string
 }
 
-export default function DKContentListView({contentType, isAdmin = false}: AdminListViewProps) {
+export default function DKContentListView({title, contentType, isAdmin = false}: AdminListViewProps) {
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
 
@@ -120,7 +121,7 @@ export default function DKContentListView({contentType, isAdmin = false}: AdminL
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <Text style={[styles.title, {color: colors.text}]}>Kayıtlar</Text>
+                {title && (<Text style={[styles.title, {color: colors.text}]}>{title}</Text>)}
                 {isAdmin && (
                     <DKButton
                         icon={{name: "add"}}

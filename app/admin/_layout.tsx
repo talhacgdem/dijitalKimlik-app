@@ -8,9 +8,6 @@ export default function ModulesLayout() {
     const router = useRouter();
     const colors = useDefaultColor();
 
-    const {contentTypeData} = useLocalSearchParams<{ contentTypeData: string }>();
-    let contentType: ContentType = JSON.parse(contentTypeData)["contentType"] as ContentType;
-
     return (
         <Stack
             screenOptions={{
@@ -38,7 +35,7 @@ export default function ModulesLayout() {
             />
             <Stack.Screen
                 name="modules"
-                options={{title: contentType.name + ' (Admin)'}}
+                options={{title: 'İçerik Yönetimi (Admin)'}}
             />
         </Stack>
     );
