@@ -210,7 +210,7 @@ export default function AdminUserListView({
                     />
                 )
                 }
-                keyExtractor={(item) => item.identity_number}
+                keyExtractor={(item) => item.id}
                 contentContainerStyle={{paddingBottom: 100}}
                 refreshControl={
                     <RefreshControl
