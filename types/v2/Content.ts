@@ -15,4 +15,11 @@ export interface Content {
     updated_at?: string,
 }
 
+export interface ContentAddRequest {
+    content_type_id: string,
+    title: string,
+    content: string,
+    image?: File
+}
+
 export type ContentResponse = Pageable<Content[]>

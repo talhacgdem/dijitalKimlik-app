@@ -49,6 +49,13 @@ class ApiClient {
                 // Token süresini kontrol et ve gerekirse yenile
                 await this.checkAndRefreshToken();
 
+                console.info('🚀 REQUEST:', {
+                    method: config.method?.toUpperCase(),
+                    fullURL: `${config.baseURL}${config.url}`,
+                    headers: config.headers,
+                    data: config.data,
+                });
+
                 // Her istekte access token varsa ekle
                 if (this.accessToken) {
                     config.headers.Authorization = `Bearer ${this.accessToken}`;
@@ -379,8 +386,6 @@ class ApiClient {
         const response = await this.axiosInstance.post<T>(url, formData, {
             ...config,
             headers: {
-                ...config?.headers,
-                'Content-Type': 'multipart/form-data',
             },
         });
         return response.data;

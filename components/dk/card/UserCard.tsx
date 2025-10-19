@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {BASE_STORAGE_URL} from '@/services/api/Endpoints';
+import {imageUrlBuilder} from '@/services/api/Endpoints';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKButton from "@/components/dk/Button";
 import {User} from "@/types/v2/User";
@@ -28,7 +28,7 @@ export default function DKUserCard({user, onPress, controlItems}: UserCardProps)
                 <Image
                     source={
                         user.image
-                            ? {uri: `${BASE_STORAGE_URL}${user.image}`}
+                            ? {uri: imageUrlBuilder(user.image)}
                             : {uri: 'https://avatar.iran.liara.run/public'}
                     }
                     style={styles.profileImage}

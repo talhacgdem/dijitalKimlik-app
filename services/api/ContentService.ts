@@ -1,5 +1,5 @@
 // src/services/api/services/ContentService.ts
-import {ContentResponse} from '@/types/v2/Content';
+import {ContentAddRequest, ContentResponse} from '@/types/v2/Content';
 import {BaseModel} from '@/types/v2/Base';
 import {apiClient} from "@/services/api/client";
 
@@ -9,7 +9,6 @@ export class ContentService {
         page?: number;
         content_type_id: string;
     }): Promise<ContentResponse> {
-        console.info(params);
         return apiClient.get<ContentResponse>('/contents', {params});
     }
 
@@ -17,14 +16,7 @@ export class ContentService {
         return apiClient.get<BaseModel<any>>(`/contents/${id}`);
     }
 
-    static async create(data: {
-        content_type_id: string;
-        title: string;
-        content: string;
-        image?: File;
-        start_date?: string;
-        end_date?: string;
-    }): Promise<BaseModel<any>> {
+    static async create(data: ContentAddRequest): Promise<BaseModel<any>> {
         const formData = new FormData();
         Object.entries(data).forEach(([key, value]) => {
             if (value !== undefined) {

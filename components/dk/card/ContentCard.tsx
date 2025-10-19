@@ -3,7 +3,7 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {formatDateString} from "@/utils/DateUtil";
 import {truncateContent} from "@/utils/StringUtils";
 import React from "react";
-import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
+import {imageUrlBuilder} from "@/services/api/Endpoints";
 import DKButton from "@/components/dk/Button";
 import {Content} from "@/types/v2/Content";
 
@@ -32,7 +32,7 @@ export default function DKContentCard({content, contentHasImage, adminControls, 
                 >
                     {content.image && (
                         <Image
-                            source={{uri: `${BASE_STORAGE_URL}${content.image}`}}
+                            source={{uri: imageUrlBuilder(content.image)}}
                             style={styles.image}
                             resizeMode="cover"
                         />

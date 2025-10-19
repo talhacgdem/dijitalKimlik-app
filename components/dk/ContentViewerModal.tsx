@@ -3,7 +3,7 @@ import {Content} from "@/types/v2/Content";
 import React from "react";
 import {ContentType} from "@/types/v2/ContentType";
 import {Image, Text, View} from "react-native";
-import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
+import {imageUrlBuilder} from "@/services/api/Endpoints";
 import {modalStyles} from "@/constants/Styles";
 import {formatDateString} from "@/utils/DateUtil";
 import DKDivider from "@/components/dk/Divider";
@@ -28,7 +28,7 @@ export default function ContentViewerModal({
         <DKModal visible={modalVisible} onClose={handleCloseModal}>
             {contentType.has_image && (
                 <Image
-                    source={{uri: `${BASE_STORAGE_URL}${content?.image}`}}
+                    source={{uri: imageUrlBuilder(content?.image)}}
                     style={modalStyles.modalImage}
                     resizeMode="cover"
                 />

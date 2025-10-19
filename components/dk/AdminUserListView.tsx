@@ -3,7 +3,7 @@ import {Alert, FlatList, Image, RefreshControl, SafeAreaView, StyleSheet, Text, 
 import {ImagePickerAsset} from 'expo-image-picker';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import {useGlobalLoading} from "@/contexts/LoadingContext";
-import {BASE_STORAGE_URL} from "@/services/api/Endpoints";
+import {imageUrlBuilder} from "@/services/api/Endpoints";
 import {UserService} from '@/services/api/UserService';
 import {User, UserCreateRequest, UserUpdateRequest} from '@/types/v2/User';
 import DKButton from '@/components/dk/Button';
@@ -289,7 +289,7 @@ export default function AdminUserListView({
                 {(formData.image || selectedImage) && (
                     <Image
                         source={{
-                            uri: selectedImage ? selectedImage.uri : `${BASE_STORAGE_URL}${formData.image}`
+                            uri: selectedImage ? selectedImage.uri : (formData.image ? imageUrlBuilder(formData.image) : undefined)
                         }}
                         style={styles.imagePreview}
                     />
