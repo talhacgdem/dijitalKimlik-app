@@ -275,86 +275,11 @@ class ApiClient {
         return response.data;
     }
 
-    async register(data: {
-        email: string;
-        password: string;
-        password_confirmation: string;
-        name: string;
-        phone: string;
-        job: string;
-    }): Promise<AuthResponse> {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-
-        const response = await this.axiosInstance.post<AuthResponse>(
-            '/auth/register',
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
-        );
-
-        if (response.data.success) {
-            console.log('Kayıt başarılı! Email doğrulama gerekiyor.');
-        }
-
-        return response.data;
-    }
-
-    async verifyEmail(token: string): Promise<BaseModel<any>> {
-        const response = await this.axiosInstance.get<BaseModel<any>>(
-            `/auth/verify-email?token=${token}`
-        );
-        return response.data;
-    }
-
-    async forgotPassword(email: string): Promise<BaseModel<any>> {
-        const response = await this.axiosInstance.post<BaseModel<any>>(
-            '/auth/forgot-password',
-            {email}
-        );
-        return response.data;
-    }
-
-    async resetPassword(data: {
-        token: string;
-        password: string;
-        password_confirmation: string;
-    }): Promise<BaseModel<any>> {
-        const response = await this.axiosInstance.post<BaseModel<any>>(
-            '/auth/reset-password',
-            data
-        );
-        return response.data;
-    }
-
-    async getCurrentUser(): Promise<BaseModel<any>> {
-        const response = await this.axiosInstance.get<BaseModel<any>>('/auth/me');
-        return response.data;
-    }
-
     async logout(): Promise<void> {
         await this.axiosInstance.post('/auth/logout');
         console.log('Logout başarılı! Tokenlar temizlendi.');
         this.clearAccessToken();
         await TokenStorage.removeRefreshToken();
-    }
-
-    async updateProfile(data: {
-        email?: string;
-        phone?: string;
-        name?: string;
-        job?: string;
-    }): Promise<BaseModel<any>> {
-        const response = await this.axiosInstance.put<BaseModel<any>>(
-            '/profile',
-            data
-        );
-        return response.data;
     }
 
     async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
