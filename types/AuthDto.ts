@@ -12,15 +12,18 @@ export interface LoginResponseDTO {
 }
 
 export interface UserDto {
-    id: number;
-    name: string;
+    id: string,
     identity_number: string;
-    is_deleted: number;
-    created_at: Date;
-    updated_at: Date;
-    image: string;
-    job: string;
-    birthDate: Date | null;
-    email: string;
+    email: string,
+    name: string,
+    phone: string,
+    job: string,
+    image: string,
+    email_verified: boolean,
+    email_verified_at: Date,
+    password_reset_expires_at: Date,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string,
     user_type: 'admin' | 'user' | 'test';
 }
