@@ -25,7 +25,7 @@ export class ContentTypeService {
         icon: string;
         has_image: boolean;
     }): Promise<ContentTypeResponse> {
-        return apiClient.put<ContentTypeResponse>(`/content-types/${id}`, data);
+        return apiClient.post<ContentTypeResponse>(`/content-types/${id}`, data);
     }
 
     static async delete(id: string): Promise<BaseModel<any>> {
