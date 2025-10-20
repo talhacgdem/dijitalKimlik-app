@@ -43,7 +43,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                         setIsAuthenticated(true);
                         setIsAdmin(authData.data.user.user_type === 'admin');
                         setEmailVerified(authData.data.user.email_verified);
-                        console.log('USER ------------------ ', authData);
                     } else {
                         // Refresh token geçersiz, oturumu temizle
                         await TokenStorage.removeRefreshToken();
