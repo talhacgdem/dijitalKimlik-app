@@ -6,8 +6,8 @@ import {router} from 'expo-router';
 import {useAuth} from '@/contexts/AuthContext';
 import DKTextInput from '@/components/dk/TextInput';
 import {useDefaultColor} from '@/hooks/useThemeColor';
-import {useLoading} from "@/hooks/useLoading";
 import {validateEmail, validatePassword} from "@/utils/StringUtils";
+import {useGlobalLoading} from "@/contexts/LoadingContext";
 
 interface ValidationErrors {
     email?: string;
@@ -15,8 +15,8 @@ interface ValidationErrors {
 }
 
 export default function LoginScreen() {
+    const {loading, showLoading, hideLoading} = useGlobalLoading();
     const {login} = useAuth();
-    const {loading} = useLoading();
     const colors = useDefaultColor();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -75,6 +75,7 @@ export default function LoginScreen() {
     };
 
     const handleLogin = async () => {
+        showLoading("Giriş yapılıyor...")
         if (isFormValid()) {
             try {
                 await login(email, password);
@@ -82,6 +83,7 @@ export default function LoginScreen() {
                 console.error('Login error:', error);
             }
         }
+        hideLoading()
     };
 
     const togglePasswordVisibility = () => {

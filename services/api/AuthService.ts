@@ -12,13 +12,17 @@ export class AuthService {
         let data = {
             email: email
         };
-        console.info("email verification", data);
-        let resp = apiClient.post<BaseModel<any>>("/auth/resend-verification", data);
-        console.info("email verification end", data);
-        console.info("email verification", resp);
+        await apiClient.post<BaseModel<any>>("/auth/resend-verification", data);
     }
 
     static async logout(): Promise<void> {
         return apiClient.logout();
+    }
+
+    static async forgotPassword(email: string): Promise<void> {
+        let data = {
+            email: email
+        };
+        await apiClient.post<BaseModel<any>>("/auth/forgot-password ", data);
     }
 }
