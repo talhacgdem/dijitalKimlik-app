@@ -11,19 +11,14 @@ import PickerDropdown from "@/components/dk/Pickeronic";
 import DKError from "@/components/dk/Error";
 import {ContentTypeService} from "@/services/api/ContentTypeService";
 import {ContentType} from "@/types/v2/ContentType";
-import {useAuth} from "@/contexts/AuthContext";
 
 export default function ModuleManager() {
     const colors = useDefaultColor();
     const {showLoading, hideLoading} = useGlobalLoading();
-    const {user} = useAuth();
 
     const [data, setData] = useState<ContentType[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // Admin kontrolü
-    const isAdmin = user?.user_type === 'admin';
 
     const iconOptions = useMemo(() => [
         'home', 'person', 'settings', 'favorite', 'search',
@@ -56,11 +51,6 @@ export default function ModuleManager() {
     }, []);
 
     const addNewContentType = async () => {
-        if (!isAdmin) {
-            Alert.alert('Yetki Hatası', 'Bu işlem için admin yetkisi gereklidir.');
-            return;
-        }
-
         if (!newContentType.name?.trim()) {
             Alert.alert('Hata', 'Modül adı boş olamaz!');
             return;
@@ -152,11 +142,6 @@ export default function ModuleManager() {
     }, []);
 
     const updateContentType = useCallback(async (item: ContentType) => {
-        if (!isAdmin) {
-            Alert.alert('Yetki Hatası', 'Bu işlem için admin yetkisi gereklidir.');
-            return;
-        }
-
         showLoading("Güncelleniyor...");
 
         const response = await ContentTypeService.update(item.id.toString(), {
@@ -174,14 +159,9 @@ export default function ModuleManager() {
             // Hata durumunda eski veriyi geri yükle
             await loadData();
         }
-    }, [isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const deleteContentType = useCallback(async (itemId: string) => {
-        if (!isAdmin) {
-            Alert.alert('Yetki Hatası', 'Bu işlem için admin yetkisi gereklidir.');
-            return;
-        }
-
         Alert.alert(
             'Modül Sil',
             'Bu modülü silmek istediğinize emin misiniz? Bu işlem geri alınamaz!',
@@ -205,7 +185,7 @@ export default function ModuleManager() {
                 }
             ]
         );
-    }, [isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const renderAccordionContentView = useCallback((item: ContentType) => {
         return (
@@ -214,13 +194,11 @@ export default function ModuleManager() {
                     label={"Modül Adı"}
                     value={item.name}
                     onChange={(text) => updateItemName(item.id, text)}
-                    editable={isAdmin}
                 />
                 <DKSwitch
                     label={"Görsel Var Mı?"}
                     value={item.has_image}
                     onChange={() => updateItemHasImage(item.id)}
-                    disabled={!isAdmin}
                 />
                 <View style={{
                     flexDirection: "row",
@@ -242,7 +220,7 @@ export default function ModuleManager() {
                         ))}
                     </PickerDropdown>
                 </View>
-                {isAdmin && (
+
                     <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                         <DKButton
                             icon={{name: "delete", size: 20}}
@@ -255,53 +233,14 @@ export default function ModuleManager() {
                             type={'primary'}
                         />
                     </View>
-                )}
+
             </View>
         );
-    }, [iconOptions, updateItemName, updateItemHasImage, updateItemIcon, deleteContentType, updateContentType, isAdmin]);
+    }, [iconOptions, updateItemName, updateItemHasImage, updateItemIcon, deleteContentType, updateContentType]);
 
     if (error && data.length === 0) {
         return (
             <DKError errorMessage={error} onPress={() => loadData()}/>
-        );
-    }
-
-    // Admin değilse sadece görüntüleme modu
-    if (!isAdmin) {
-        return (
-            <SafeAreaView style={styles.container}>
-                <ScrollView
-                    style={styles.scrollView}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={handleRefresh}
-                            colors={[colors.tint]}
-                            tintColor={colors.tint}
-                            title="Yenileniyor..."
-                            titleColor={colors.text}
-                        />
-                    }
-                >
-                    <View style={styles.content}>
-                        <View style={styles.infoBox}>
-                            <DKIcon name="info" size={24} color={colors.primary}/>
-                            <Text style={[styles.infoText, {color: colors.text}]}>
-                                Modülleri görüntüleyebilirsiniz. Düzenleme için admin yetkisi gereklidir.
-                            </Text>
-                        </View>
-                        <AccordionList
-                            data={data.map(item => ({
-                                id: item.id,
-                                title: item.name,
-                                icon: item.icon,
-                                content: renderAccordionContentView(item)
-                            } as AccordionItemData))}
-                            showIcon={true}
-                        />
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
         );
     }
 
