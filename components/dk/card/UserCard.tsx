@@ -51,10 +51,10 @@ export default function DKUserCard({user, onPress, controlItems}: UserCardProps)
                     )}
                 </View>
 
-                <View style={styles.infoRow}>
-                    <Text style={[styles.label, {color: colors.secondaryText}]}>Kimlik No:</Text>
-                    <Text style={[styles.value, {color: colors.text}]}>{user.identity_number}</Text>
-                </View>
+                {/*<View style={styles.infoRow}>*/}
+                {/*    <Text style={[styles.label, {color: colors.secondaryText}]}>Kimlik No:</Text>*/}
+                {/*    <Text style={[styles.value, {color: colors.text}]}>{user.identity_number}</Text>*/}
+                {/*</View>*/}
 
                 <View style={styles.infoRow}>
                     <Text style={[styles.label, {color: colors.secondaryText}]}>Telefon:</Text>
