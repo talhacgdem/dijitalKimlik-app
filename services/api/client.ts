@@ -276,7 +276,7 @@ class ApiClient {
     }
 
     async logout(): Promise<void> {
-        await this.axiosInstance.post('/auth/logout');
+        await this.axiosInstance.get('/auth/logout');
         console.log('Logout başarılı! Tokenlar temizlendi.');
         this.clearAccessToken();
         await TokenStorage.removeRefreshToken();
