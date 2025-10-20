@@ -9,6 +9,7 @@ interface AuthContextType {
     isLoading: boolean;
     isAuthenticated: boolean;
     isAdmin:boolean
+    isEmailVerified:boolean
     login: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -20,6 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [isEmailVerified, setEmailVerified] = useState<boolean>(false);
 
 
 
@@ -40,6 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                         setUser(authData.data.user);
                         setIsAuthenticated(true);
                         setIsAdmin(authData.data.user.user_type === 'admin');
+                        setEmailVerified(authData.data.user.email_verified);
+                        console.log('USER ------------------ ', authData);
                     } else {
                         // Refresh token geçersiz, oturumu temizle
                         await TokenStorage.removeRefreshToken();
@@ -101,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     };
 
     return (
-        <AuthContext.Provider value={{user, isLoading, isAuthenticated, isAdmin, login, logout}}>
+        <AuthContext.Provider value={{user, isLoading, isAuthenticated, isAdmin, isEmailVerified, login, logout}}>
             {children}
         </AuthContext.Provider>
     );
