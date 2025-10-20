@@ -25,7 +25,7 @@ export class UserService {
     }
 
     static async update(id: string, data: UserUpdateRequest): Promise<UserResponse> {
-        return apiClient.put<UserResponse>(`/users/${id}`, data);
+        return apiClient.post<UserResponse>(`/users/${id}`, data);
     }
 
     static async delete(id: string): Promise<BaseModel<any>> {
