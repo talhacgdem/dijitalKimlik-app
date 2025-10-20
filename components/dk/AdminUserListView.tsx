@@ -91,7 +91,7 @@ export default function AdminUserListView({
             setEditMode(true);
             setFormData({
                 name: item.name,
-                phone: item.job,
+                phone: item.phone,
                 email: item.email,
                 job: item.job,
                 image: item.image,
@@ -100,13 +100,13 @@ export default function AdminUserListView({
         } else {
             setEditMode(false);
             setFormData({
-                identity_number: 'undefined',
-                name: 'undefined',
-                phone: 'undefined',
-                email: 'undefined',
-                job: 'undefined',
-                image: 'undefined',
-                password: 'undefined'
+                identity_number: '',
+                name: '',
+                phone: '',
+                email: '',
+                job: '',
+                image: '',
+                password: ''
             });
             setSelectedItem(null);
         }
@@ -140,27 +140,66 @@ export default function AdminUserListView({
     };
 
     const handleSave = async () => {
+        try {
+            showLoading(editMode ? 'Kullanıcı güncelleniyor...' : 'Kullanıcı oluşturuluyor...');
 
-        const dataToSave = {
-            identity_number: formData.identity_number,
-            name: formData.name,
-            phone: formData.phone,
-            email: formData.email,
-            job: formData.job,
-            image: selectedImage?.base64 || formData.image,
-            password: formData.password
-        };
+            // Form validasyonu
+            if (!formData.name || !formData.email) {
+                Alert.alert('Hata', 'Ad ve email alanları zorunludur.');
+                return;
+            }
 
-        if (editMode && selectedItem != null) {
-            const updateData: Partial<UserUpdateRequest> = dataToSave;
-            await UserService.update(selectedItem.id, updateData);
-        } else {
-            const createData: Partial<UserCreateRequest> = dataToSave;
-            await UserService.create(createData);
+            if (!editMode && !formData.password) {
+                Alert.alert('Hata', 'Yeni kullanıcı için şifre zorunludur.');
+                return;
+            }
+
+            if (editMode && selectedItem) {
+                // Update işlemi - JSON olarak gönder
+                const updateData: UserUpdateRequest = {
+                    identity_number: formData.identity_number || '',
+                    name: formData.name || '',
+                    phone: formData.phone || '',
+                    email: formData.email || '',
+                    job: formData.job || '',
+                };
+
+                const response = await UserService.update(selectedItem.id, updateData);
+
+                if (response.success) {
+                    Alert.alert('Başarılı', 'Kullanıcı başarıyla güncellendi.');
+                } else {
+                    Alert.alert('Hata', response.message || 'Güncelleme sırasında bir hata oluştu.');
+                    return;
+                }
+            } else {
+                // Create işlemi - FormData olarak gönder
+                const createData: UserCreateRequest = {
+                    name: formData.name || '',
+                    phone: formData.phone || '',
+                    email: formData.email || '',
+                    job: formData.job || '',
+                    password: formData.password || '',
+                };
+
+                const response = await UserService.create(createData);
+
+                if (response.success) {
+                    Alert.alert('Başarılı', 'Kullanıcı başarıyla oluşturuldu.');
+                } else {
+                    Alert.alert('Hata', response.message || 'Oluşturma sırasında bir hata oluştu.');
+                    return;
+                }
+            }
+
+            resetModal();
+            await loadData();
+        } catch (error) {
+            console.error('Save error:', error);
+            Alert.alert('Hata', 'İşlem sırasında bir hata oluştu.');
+        } finally {
+            hideLoading();
         }
-
-        resetModal();
-        await loadData();
     };
 
     const handleDelete = async (item: User) => {
@@ -171,11 +210,20 @@ export default function AdminUserListView({
                 style: 'destructive',
                 onPress: async () => {
                     try {
-                        await UserService.delete(item.id);
-                        await loadData();
+                        showLoading('Kullanıcı siliniyor...');
+                        const response = await UserService.delete(item.id);
+
+                        if (response.success) {
+                            Alert.alert('Başarılı', 'Kullanıcı başarıyla silindi.');
+                            await loadData();
+                        } else {
+                            Alert.alert('Hata', response.message || 'Silme sırasında bir hata oluştu.');
+                        }
                     } catch (e) {
                         Alert.alert('Hata', 'Silme sırasında bir sorun oluştu.');
                         console.error(e);
+                    } finally {
+                        hideLoading();
                     }
                 }
             }
@@ -192,9 +240,8 @@ export default function AdminUserListView({
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={[styles.title, {color: colors.text}]}>{title}</Text>
-                <DKButton label={"+ Kullanıcı Ekle"} onPress={handleOpenModal} type={'primary'}></DKButton>
+                <DKButton label={"+ Kullanıcı Ekle"} onPress={() => handleOpenModal()} type={'primary'}></DKButton>
             </View>
-
 
             <FlatList
                 data={data}
@@ -240,15 +287,13 @@ export default function AdminUserListView({
                 onClose={handleCloseModal}
             >
 
-                {!editMode && (
-                    <DKTextInput
-                        label="Kimlik Numarası"
-                        value={formData.identity_number || ''}
-                        onChange={(text) => setFormData({...formData, identity_number: text})}
-                        maxLength={11}
-                        keyboardType="numeric"
-                    />
-                )}
+                {/*<DKTextInput*/}
+                {/*    label="Kimlik Numarası"*/}
+                {/*    value={formData.identity_number || ''}*/}
+                {/*    onChange={(text) => setFormData({...formData, identity_number: text})}*/}
+                {/*    maxLength={11}*/}
+                {/*    keyboardType="numeric"*/}
+                {/*/>*/}
 
                 <DKTextInput
                     label="Ad"
@@ -279,12 +324,15 @@ export default function AdminUserListView({
                     placeholder="Yazılım Mühendisi"
                 />
 
-                <DKTextInput
-                    label="Şifre"
-                    value={formData.password || ''}
-                    onChange={(text) => setFormData({...formData, password: text})}
-                    secureTextEntry={true}
-                />
+                {!editMode && (
+                    <DKTextInput
+                        label="Şifre"
+                        value={formData.password || ''}
+                        onChange={(text) => setFormData({...formData, password: text})}
+                        secureTextEntry
+                        placeholder="Minimum 6 karakter"
+                    />
+                )}
 
                 {(formData.image || selectedImage) && (
                     <Image
