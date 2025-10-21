@@ -76,17 +76,24 @@ export default function LoginScreen() {
 
     const handleLogin = async () => {
         if (!isFormValid()) {
-            return; // Form geçerli değilse hiç API çağrısı yapma
+            return;
         }
 
         showLoading("Giriş yapılıyor...");
 
         try {
-            await login(email, password);
-            // Başarılı login sonrası AuthGuard otomatik yönlendirecek
+            const result = await login(email, password);
+
+            if (result.success) {
+                if (!result.emailVerified) {
+                    router.replace('/(auth)/email-verification');
+                } else {
+                    router.replace('/(tabs)');
+                }
+            }
         } catch (error) {
             console.error('Login error:', error);
-            // Hata toast'ı AuthContext'te gösteriliyor
+            // Hata toast'ı zaten AuthContext'te gösteriliyor
         } finally {
             hideLoading();
         }

@@ -1,20 +1,29 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import {apiClient} from '@/services/api/client';
 import {TokenStorage} from '@/services/storage';
-import { UserDto } from '@/types/AuthDto';
+import {UserDto} from '@/types/AuthDto';
 import {toastManager} from "@/services/ToastManager";
 
 interface AuthContextType {
     user: UserDto | null;
     isLoading: boolean;
     isAuthenticated: boolean;
-    isAdmin:boolean
-    isEmailVerified:boolean
-    login: (username: string, password: string) => Promise<void>;
+    isAdmin: boolean;
+    isEmailVerified: boolean;
+    login: (username: string, password: string) => Promise<{ success: boolean, emailVerified: boolean }>;
     logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+    user: null,
+    isLoading: true,
+    isAuthenticated: false,
+    isAdmin: false,
+    isEmailVerified: false,
+    login: async () => ({success: false, emailVerified: false}), // Düzeltildi
+    logout: async () => {
+    },
+});
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [user, setUser] = useState<UserDto | null>(null);
@@ -22,8 +31,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [isEmailVerified, setEmailVerified] = useState<boolean>(false);
-
-
 
     // Uygulama başladığında refresh token ile oturum kontrolü
     useEffect(() => {
@@ -48,15 +55,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                         await TokenStorage.removeRefreshToken();
                         setIsAuthenticated(false);
                         setIsAdmin(false);
+                        setEmailVerified(false);
                     }
                 } else {
                     setIsAuthenticated(false);
                     setIsAdmin(false);
+                    setEmailVerified(false);
                 }
             } catch (error) {
                 console.error('Oturum kontrolü hatası:', error);
                 setIsAuthenticated(false);
                 setIsAdmin(false);
+                setEmailVerified(false);
             } finally {
                 setIsLoading(false);
             }
@@ -65,21 +75,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         checkAuth();
     }, []);
 
-    // Login fonksiyonu
-    const login = async (username: string, password: string) => {
+    // Login fonksiyonu - DÜZELTME YAPILDI
+    const login = async (username: string, password: string): Promise<{ success: boolean, emailVerified: boolean }> => {
         setIsLoading(true);
         try {
             const response = await apiClient.login(username, password);
             setUser(response.data.user);
             setIsAuthenticated(true);
             setIsAdmin(response.data.user.user_type === 'admin');
+            setEmailVerified(response.data.user?.email_verified);
+
+            // Başarı durumunu ve email verification durumunu return et
+            return {
+                success: true,
+                emailVerified: response.data.user?.email_verified || false
+            };
         } catch (error) {
             console.error('Giriş hatası:', error);
             toastManager.error('Hatalı kimlik veya şifre', {
                 duration: 10000,
                 position: 'bottom',
             });
-            throw error;
+            throw error; // Hata fırlat
         } finally {
             setIsLoading(false);
         }
@@ -99,7 +116,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             setUser(null);
             setIsAuthenticated(false);
             setIsAdmin(false);
+            setEmailVerified(false); // Eklendi
             setIsLoading(false);
+
         }
     };
 

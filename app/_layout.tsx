@@ -1,39 +1,54 @@
 // app/_layout.tsx
-import React, {useEffect} from 'react';
+import React, {useEffect, useLayoutEffect, useRef} from 'react';
 import {Stack, useRouter, useSegments} from 'expo-router';
+import {InteractionManager} from 'react-native';
 import {AuthProvider, useAuth} from '@/contexts/AuthContext';
 import * as SplashScreen from 'expo-splash-screen';
 import DKLoading from "@/components/dk/Loading";
 import {LoadingProvider, useGlobalLoading} from "@/contexts/LoadingContext";
 import ToastProvider from "@/contexts/ToastContext";
 
-// SplashScreen'in otomatik kapanmasını engelle
 SplashScreen.preventAutoHideAsync();
 
-// Yönlendirme kontrolü için özel bileşen
 function AuthGuard({children}: { children: React.ReactNode }) {
-    const {isAuthenticated, isLoading} = useAuth();
+    const {isAuthenticated, isEmailVerified, isLoading} = useAuth();
     const segments = useSegments();
     const router = useRouter();
+    const splashHidden = useRef(false);
 
-    useEffect(() => {
-        if (!isLoading) {
-            SplashScreen.hideAsync();
-        }
-    }, [isLoading]);
-
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (isLoading) return;
 
         const inAuthGroup = segments[0] === '(auth)';
+        const isOnLoginPage = segments[1] === 'login';
+        const isOnEmailVerification = segments[1] === 'email-verification';
 
-        if (!isAuthenticated && !inAuthGroup) {
+        if (!isAuthenticated && !isOnLoginPage) {
+            // Giriş yapmamış ve login sayfasında değil → login'e git
             router.replace('/(auth)/login');
-        } else if (isAuthenticated && inAuthGroup) {
+        } else if (isAuthenticated && !isEmailVerified && !isOnEmailVerification) {
+            // Giriş yapmış ama email verified değil ve verification sayfasında değil → verification'a git
+            router.replace('/(auth)/email-verification');
+        } else if (isAuthenticated && isEmailVerified && inAuthGroup) {
+            // Her şey OK ama hala auth grubunda → tabs'a yönlendir
             router.replace('/(tabs)');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated, segments, isLoading]);
+    }, [isAuthenticated, isEmailVerified, segments, isLoading]);
+
+    // InteractionManager ile tüm animasyonlar bitince splash'i kapat
+    useEffect(() => {
+        if (!isLoading && !splashHidden.current) {
+            const handle = InteractionManager.runAfterInteractions(() => {
+                setTimeout(() => {
+                    SplashScreen.hideAsync().catch(() => {});
+                    splashHidden.current = true;
+                }, 100);
+            });
+
+            return () => handle.cancel();
+        }
+    }, [isLoading]);
 
     return <>{children}</>;
 }
