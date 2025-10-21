@@ -17,7 +17,6 @@ function AuthGuard({children}: { children: React.ReactNode }) {
     const router = useRouter();
 
     useEffect(() => {
-        // Yükleme tamamlandığında splash screen'i kapat
         if (!isLoading) {
             SplashScreen.hideAsync();
         }
@@ -26,16 +25,9 @@ function AuthGuard({children}: { children: React.ReactNode }) {
     useEffect(() => {
         if (isLoading) return;
 
-        const inAuthGroup = segments[0] !== '(tabs)' && segments[0] !== 'modules' && segments[0] !== 'admin';
-
-        // Kullanıcı kimlik doğrulaması yapmadıysa ve auth grubunda değilse
-        if (!isAuthenticated && !inAuthGroup) {
-            // Login sayfasına yönlendir
+        if (!isAuthenticated) {
             router.replace('/(auth)/login');
-        }
-        // Kullanıcı kimlik doğrulaması yaptıysa ve auth grubundaysa
-        else if (isAuthenticated && inAuthGroup) {
-            // Ana sayfaya yönlendir (tabs alanına)
+        } else {
             router.replace('/(tabs)');
         }
     }, [isAuthenticated, segments, isLoading, router]);
@@ -61,14 +53,14 @@ function MainContent() {
 
 export default function RootLayout() {
     return (
-            <ToastProvider>
-                <AuthProvider>
-                    <AuthGuard>
-                        <LoadingProvider>
-                            <MainContent/>
-                        </LoadingProvider>
-                    </AuthGuard>
-                </AuthProvider>
-            </ToastProvider>
+        <ToastProvider>
+            <AuthProvider>
+                <AuthGuard>
+                    <LoadingProvider>
+                        <MainContent/>
+                    </LoadingProvider>
+                </AuthGuard>
+            </AuthProvider>
+        </ToastProvider>
     );
 }
