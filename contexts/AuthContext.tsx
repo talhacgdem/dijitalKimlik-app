@@ -4,11 +4,10 @@ import {apiClient} from '@/services/api/client';
 import {TokenStorage} from '@/services/storage';
 import { UserDto } from '@/types/AuthDto';
 import {toastManager} from "@/services/ToastManager";
-import {useGlobalLoading} from "@/contexts/LoadingContext";
 
 interface AuthContextType {
     user: UserDto | null;
-    loading: boolean;
+    isLoading: boolean;
     isAuthenticated: boolean;
     isAdmin: boolean;
     isEmailVerified: boolean;
@@ -18,7 +17,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
-    loading: true,
+    isLoading: true,
     isAuthenticated: false,
     isAdmin: false,
     isEmailVerified: false,
@@ -28,7 +27,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [user, setUser] = useState<UserDto | null>(null);
-    const {loading, showLoading, hideLoading} = useGlobalLoading();
+    const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [isEmailVerified, setEmailVerified] = useState<boolean>(false);
@@ -41,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         }
 
         const checkAuth = async () => {
-            showLoading("Oturum yenileniyor")
             hasCheckedAuth.current = true;
             try {
                 const refreshToken = await TokenStorage.getRefreshToken();
@@ -81,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 setIsAdmin(false);
                 setEmailVerified(false);
             } finally {
-                hideLoading();
+                setIsLoading(false);
             }
         };
 
@@ -90,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
     // Login fonksiyonu
     const login = async (username: string, password: string): Promise<{success: boolean, emailVerified: boolean}> => {
-        showLoading("Giriş yapılıyor");
+        setIsLoading(true);
         try {
             const response = await apiClient.login(username, password);
 
@@ -118,13 +116,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             });
             throw error;
         } finally {
-            hideLoading();
+            setIsLoading(false);
         }
     };
 
     // Logout fonksiyonu
     const logout = async () => {
-        showLoading("Çıkış yapılıyor");
+        setIsLoading(true);
         try {
             await apiClient.logout();
         } catch (error) {
@@ -137,12 +135,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             setIsAuthenticated(false);
             setIsAdmin(false);
             setEmailVerified(false);
-            hideLoading();
+            setIsLoading(false);
         }
     };
 
     return (
-        <AuthContext.Provider value={{user, loading, isAuthenticated, isAdmin, isEmailVerified, login, logout}}>
+        <AuthContext.Provider value={{user, isLoading, isAuthenticated, isAdmin, isEmailVerified, login, logout}}>
             {children}
         </AuthContext.Provider>
     );

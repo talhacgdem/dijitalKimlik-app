@@ -1,22 +1,23 @@
 // app/_layout.tsx
 import React, {useEffect, useLayoutEffect, useRef} from 'react';
 import {Stack, useRouter, useSegments} from 'expo-router';
-import {InteractionManager} from 'react-native';
+import {ActivityIndicator, InteractionManager, View} from 'react-native';
 import {AuthProvider, useAuth} from '@/contexts/AuthContext';
 import * as SplashScreen from 'expo-splash-screen';
 import DKLoading from "@/components/dk/Loading";
 import {LoadingProvider, useGlobalLoading} from "@/contexts/LoadingContext";
 import ToastProvider from "@/contexts/ToastContext";
 
+SplashScreen.preventAutoHideAsync();
 
 function AuthGuard({children}: { children: React.ReactNode }) {
-    const {isAuthenticated, isEmailVerified, loading} = useAuth();
+    const {isAuthenticated, isEmailVerified, isLoading} = useAuth();
     const segments = useSegments();
     const router = useRouter();
     const splashHidden = useRef(false);
 
     useLayoutEffect(() => {
-        if (loading) return;
+        if (isLoading) return;
 
         const inAuthGroup = segments[0] === '(auth)';
         const isOnLoginPage = segments[1] === 'login';
@@ -33,30 +34,29 @@ function AuthGuard({children}: { children: React.ReactNode }) {
             router.replace('/(tabs)');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated, isEmailVerified, segments, loading]);
+    }, [isAuthenticated, isEmailVerified, segments, isLoading]);
 
     // InteractionManager ile tüm animasyonlar bitince splash'i kapat
     useEffect(() => {
-        if (!loading && !splashHidden.current) {
+        if (!isLoading && !splashHidden.current) {
             const handle = InteractionManager.runAfterInteractions(() => {
                 setTimeout(() => {
-                    SplashScreen.hideAsync().catch(() => {
-                    });
+                    SplashScreen.hideAsync().catch(() => {});
                     splashHidden.current = true;
                 }, 100);
             });
 
             return () => handle.cancel();
         }
-    }, [loading]);
+    }, [isLoading]);
 
-    // if (loading) {
-    //     return (
-    //         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
-    //             <ActivityIndicator size="large" color="#007AFF" />
-    //         </View>
-    //     );
-    // }
+    if (isLoading) {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
+                <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+        );
+    }
 
     return <>{children}</>;
 }
@@ -80,13 +80,13 @@ function MainContent() {
 export default function RootLayout() {
     return (
         <ToastProvider>
-            <LoadingProvider>
-                <AuthProvider>
-                    <AuthGuard>
+            <AuthProvider>
+                <AuthGuard>
+                    <LoadingProvider>
                         <MainContent/>
-                    </AuthGuard>
-                </AuthProvider>
-            </LoadingProvider>
+                    </LoadingProvider>
+                </AuthGuard>
+            </AuthProvider>
         </ToastProvider>
     );
 }
