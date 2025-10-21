@@ -1,8 +1,7 @@
 // app/admin/_layout.tsx
-import {Stack, useLocalSearchParams, useRouter} from 'expo-router';
+import {Stack, useRouter} from 'expo-router';
 import {useDefaultColor} from '@/hooks/useThemeColor';
 import DKButton from "@/components/dk/Button";
-import {ContentType} from "@/types/v2/ContentType";
 
 export default function ModulesLayout() {
     const router = useRouter();
@@ -16,7 +15,7 @@ export default function ModulesLayout() {
                 headerTintColor: colors.text, // Geri butonunun rengi
                 headerLeft: () => (
                     <DKButton
-                        icon={{name:"arrow-back"}}
+                        icon={{name: "arrow-back"}}
                         onPress={() => router.back()}
                         type={"none"}
                         style={{marginLeft: 16, marginRight: 16}}
