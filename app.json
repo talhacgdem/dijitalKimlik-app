@@ -1,16 +1,16 @@
 {
   "expo": {
     "name": "Sağlık HAK-SEN Dijital Kimlik",
-    "slug": "saglikHakSen",
+    "slug": "dijitalKimlik",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "saglikhaksen",
+    "scheme": "dijitalkimlik",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.saglikHakSen.app"
+      "bundleIdentifier": "com.dijitalkimlik.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.saglikHakSen.app",
+      "package": "com.dijitalkimlik.app",
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.READ_EXTERNAL_STORAGE"
@@ -56,8 +56,7 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ],
-      "expo-font"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
