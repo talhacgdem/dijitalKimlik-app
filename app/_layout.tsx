@@ -25,12 +25,15 @@ function AuthGuard({children}: { children: React.ReactNode }) {
     useEffect(() => {
         if (isLoading) return;
 
-        if (!isAuthenticated) {
+        const inAuthGroup = segments[0] === '(auth)';
+
+        if (!isAuthenticated && !inAuthGroup) {
             router.replace('/(auth)/login');
-        } else {
+        } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(tabs)');
         }
-    }, [isAuthenticated, segments, isLoading, router]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated, segments, isLoading]);
 
     return <>{children}</>;
 }
