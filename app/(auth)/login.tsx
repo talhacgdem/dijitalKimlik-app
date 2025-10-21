@@ -75,15 +75,21 @@ export default function LoginScreen() {
     };
 
     const handleLogin = async () => {
-        showLoading("Giriş yapılıyor...")
-        if (isFormValid()) {
-            try {
-                await login(email, password);
-            } catch (error) {
-                console.error('Login error:', error);
-            }
+        if (!isFormValid()) {
+            return; // Form geçerli değilse hiç API çağrısı yapma
         }
-        hideLoading()
+
+        showLoading("Giriş yapılıyor...");
+
+        try {
+            await login(email, password);
+            // Başarılı login sonrası AuthGuard otomatik yönlendirecek
+        } catch (error) {
+            console.error('Login error:', error);
+            // Hata toast'ı AuthContext'te gösteriliyor
+        } finally {
+            hideLoading();
+        }
     };
 
     const togglePasswordVisibility = () => {
