@@ -43,11 +43,6 @@ const UserIdCard = ({
                     </View>
 
                     <View style={styles.infoItem}>
-                        <Text style={styles.label}>Doğum Tarihi</Text>
-                        <Text style={styles.value}>{formatDate(user?.birthDate)}</Text>
-                    </View>
-
-                    <View style={styles.infoItem}>
                         <Text style={styles.label}>Departman</Text>
                         <Text style={styles.value}>{user?.job}</Text>
                     </View>
