@@ -29,7 +29,7 @@ export default function DKUserCard({user, onPress, controlItems}: UserCardProps)
                     source={
                         user.image
                             ? {uri: imageUrlBuilder(user.image)}
-                            : {uri: 'https://avatar.iran.liara.run/public'}
+                            : require('@/assets/images/default_avatar.png')
                     }
                     style={styles.profileImage}
                     resizeMode="cover"
