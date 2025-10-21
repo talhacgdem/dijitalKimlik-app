@@ -7,6 +7,7 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 export const TokenStorage = {
     saveRefreshToken: async (token: string): Promise<void> => {
         try {
+            console.log('Save Refresh token:', token);
             await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
         } catch (error) {
             console.error('Refresh token kaydedilemedi:', error);
@@ -16,7 +17,9 @@ export const TokenStorage = {
 
     getRefreshToken: async (): Promise<string | null> => {
         try {
-            return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+            let refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+            console.log('Get Refresh token:', refreshToken);
+            return refreshToken;
         } catch (error) {
             console.error('Refresh token alınamadı:', error);
             return null;
@@ -159,7 +162,7 @@ class GenericStorage {
 type Primitive = string | number | boolean | null | undefined;
 
 // Date handling için özel tip
-type SerializableValue =
+export type SerializableValue =
     | Primitive
     | Date
     | SerializableValue[]
