@@ -1,7 +1,6 @@
 // app/_layout.tsx
-import React, {useEffect, useLayoutEffect, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Stack, useRouter, useSegments} from 'expo-router';
-import {InteractionManager} from 'react-native';
 import {AuthProvider, useAuth} from '@/contexts/AuthContext';
 import * as SplashScreen from 'expo-splash-screen';
 import DKLoading from "@/components/dk/Loading";
@@ -14,42 +13,49 @@ function AuthGuard({children}: { children: React.ReactNode }) {
     const segments = useSegments();
     const router = useRouter();
     const splashHidden = useRef(false);
+    const navigationDone = useRef(false);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (loading) return;
+
+        // İlk render'da navigation yapma
+        if (!navigationDone.current) {
+            navigationDone.current = true;
+            return;
+        }
 
         const inAuthGroup = segments[0] === '(auth)';
         const isOnLoginPage = segments[1] === 'login';
         const isOnEmailVerification = segments[1] === 'email-verification';
 
-        if (!isAuthenticated && !isOnLoginPage) {
-            // Giriş yapmamış ve login sayfasında değil → login'e git
-            router.replace('/(auth)/login');
-        } else if (isAuthenticated && !isEmailVerified && !isOnEmailVerification) {
-            // Giriş yapmış ama email verified değil ve verification sayfasında değil → verification'a git
-            router.replace('/(auth)/email-verification');
-        } else if (isAuthenticated && isEmailVerified && inAuthGroup) {
-            // Her şey OK ama hala auth grubunda → tabs'a yönlendir
-            router.replace('/(tabs)');
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated, isEmailVerified, segments, loading]);
+        // Navigation'ı bir sonraki tick'e ertele
+        const timer = setTimeout(() => {
+            if (!isAuthenticated && !isOnLoginPage) {
+                router.replace('/(auth)/login');
+            } else if (isAuthenticated && !isEmailVerified && !isOnEmailVerification) {
+                router.replace('/(auth)/email-verification');
+            } else if (isAuthenticated && isEmailVerified && inAuthGroup) {
+                router.replace('/(tabs)');
+            }
+        }, 0);
 
+        return () => clearTimeout(timer);
+    }, [isAuthenticated, isEmailVerified, segments, loading]);
     // InteractionManager ile tüm animasyonlar bitince splash'i kapat
     useEffect(() => {
-        if (!loading && !splashHidden.current) {
-            const handle = InteractionManager.runAfterInteractions(() => {
-                setTimeout(() => {
+        if (!loading) {
+            // Tüm işlemler bitince splash'i kapat
+            const timer = setTimeout(() => {
+                if (!splashHidden.current) {
                     SplashScreen.hideAsync().catch(() => {
                     });
                     splashHidden.current = true;
-                }, 100);
-            });
+                }
+            }, 100);
 
-            return () => handle.cancel();
+            return () => clearTimeout(timer);
         }
     }, [loading]);
-
     // if (loading) {
     //     return (
     //         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>

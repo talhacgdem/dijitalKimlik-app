@@ -28,30 +28,30 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [user, setUser] = useState<UserDto | null>(null);
-    const {loading, showLoading, hideLoading} = useGlobalLoading();
+    const [internalLoading, setInternalLoading] = useState(true); // Kendi loading state'i
+    const {showLoading, hideLoading} = useGlobalLoading();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [isEmailVerified, setEmailVerified] = useState<boolean>(false);
     const hasCheckedAuth = useRef(false);
 
-    // Uygulama başladığında refresh token ile oturum kontrolü
     useEffect(() => {
         if (hasCheckedAuth.current) {
             return;
         }
 
         const checkAuth = async () => {
-            showLoading("Oturum yenileniyor")
             hasCheckedAuth.current = true;
+            setInternalLoading(true);
+
             try {
                 const refreshToken = await TokenStorage.getRefreshToken();
 
                 if (refreshToken) {
                     console.log('🔍 Refresh token bulundu, token yenileniyor...');
-
                     const authData = await apiClient.refreshAccessToken(refreshToken);
 
-                    if (authData && authData.success && authData.data) {
+                    if (authData?.success && authData.data) {
                         apiClient.setAccessToken(authData.data.access_token, authData.data.expires_in);
                         await TokenStorage.saveRefreshToken(authData.data.refresh_token);
                         setUser(authData.data.user);
@@ -59,37 +59,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                         setIsAdmin(authData.data.user.user_type === 'admin');
                         setEmailVerified(authData.data.user?.email_verified || false);
                     } else {
-                        await TokenStorage.removeRefreshToken();
-                        apiClient.clearAccessToken();
-                        setUser(null);
-                        setIsAuthenticated(false);
-                        setIsAdmin(false);
-                        setEmailVerified(false);
+                        await clearAuthState();
                     }
                 } else {
                     console.log('ℹ️ Refresh token bulunamadı');
-                    setIsAuthenticated(false);
-                    setIsAdmin(false);
-                    setEmailVerified(false);
+                    await clearAuthState();
                 }
             } catch (error) {
                 console.error('❌ Oturum kontrolü hatası:', error);
-                await TokenStorage.removeRefreshToken();
-                apiClient.clearAccessToken();
-                setUser(null);
-                setIsAuthenticated(false);
-                setIsAdmin(false);
-                setEmailVerified(false);
+                await clearAuthState();
             } finally {
-                hideLoading();
+                setInternalLoading(false);
             }
         };
 
         checkAuth();
     }, []);
 
-    // Login fonksiyonu
-    const login = async (username: string, password: string): Promise<{success: boolean, emailVerified: boolean}> => {
+    const clearAuthState = async () => {
+        await TokenStorage.removeRefreshToken();
+        apiClient.clearAccessToken();
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        setEmailVerified(false);
+    };
+
+    const login = async (username: string, password: string) => {
         showLoading("Giriş yapılıyor");
         try {
             const response = await apiClient.login(username, password);
@@ -106,23 +102,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 };
             }
 
-            return {
-                success: false,
-                emailVerified: false
-            };
+            return { success: false, emailVerified: false };
         } catch (error) {
             console.error('Giriş hatası:', error);
-            toastManager.error('Hatalı kimlik veya şifre', {
-                duration: 10000,
-                position: 'bottom',
-            });
+            toastManager.error('Hatalı kimlik veya şifre');
             throw error;
         } finally {
             hideLoading();
         }
     };
 
-    // Logout fonksiyonu
     const logout = async () => {
         showLoading("Çıkış yapılıyor");
         try {
@@ -130,19 +119,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         } catch (error) {
             console.error('Çıkış hatası:', error);
         } finally {
-            // Yerel oturum verilerini temizle
-            apiClient.clearAccessToken();
-            await TokenStorage.removeRefreshToken();
-            setUser(null);
-            setIsAuthenticated(false);
-            setIsAdmin(false);
-            setEmailVerified(false);
+            await clearAuthState();
             hideLoading();
         }
     };
 
     return (
-        <AuthContext.Provider value={{user, loading, isAuthenticated, isAdmin, isEmailVerified, login, logout}}>
+        <AuthContext.Provider value={{
+            user,
+            loading: internalLoading, // Global loading yerine internal loading kullan
+            isAuthenticated,
+            isAdmin,
+            isEmailVerified,
+            login,
+            logout
+        }}>
             {children}
         </AuthContext.Provider>
     );
