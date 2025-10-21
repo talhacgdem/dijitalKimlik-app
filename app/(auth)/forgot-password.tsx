@@ -1,6 +1,6 @@
 // screens/LoginScreen.tsx
 import React, {useState} from 'react';
-import {Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Button} from 'react-native-paper';
 import DKTextInput from '@/components/dk/TextInput';
 import {useDefaultColor} from '@/hooks/useThemeColor';
@@ -13,9 +13,10 @@ export default function ForgotPassword() {
     const {loading, showLoading, hideLoading} = useGlobalLoading();
 
     const handleLogin = async () => {
-        showLoading("Gönderiliyor")
+        showLoading("Gönderiliyor");
         await AuthService.forgotPassword(email);
-        hideLoading()
+        hideLoading();
+        Alert.alert("Şifre Sıfırlama", "Şifre sıfırlama bağlantısı mail adresinize (hesabınız var ise) gönderildi. Lütfen spam kutusunu da kontrol edin.")
     };
 
     return (
