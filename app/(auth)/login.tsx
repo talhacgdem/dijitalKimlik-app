@@ -82,18 +82,10 @@ export default function LoginScreen() {
         showLoading("Giriş yapılıyor...");
 
         try {
-            const result = await login(email, password);
-
-            if (result.success) {
-                if (!result.emailVerified) {
-                    router.replace('/(auth)/email-verification');
-                } else {
-                    router.replace('/(tabs)');
-                }
-            }
+            await login(email, password);
+            // AuthGuard otomatik yönlendirecek, manuel navigation YAPMA
         } catch (error) {
             console.error('Login error:', error);
-            // Hata toast'ı zaten AuthContext'te gösteriliyor
         } finally {
             hideLoading();
         }
