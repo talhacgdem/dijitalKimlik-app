@@ -1,7 +1,7 @@
 // app/_layout.tsx
 import React, {useEffect, useLayoutEffect, useRef} from 'react';
 import {Stack, useRouter, useSegments} from 'expo-router';
-import {InteractionManager} from 'react-native';
+import {ActivityIndicator, InteractionManager, View} from 'react-native';
 import {AuthProvider, useAuth} from '@/contexts/AuthContext';
 import * as SplashScreen from 'expo-splash-screen';
 import DKLoading from "@/components/dk/Loading";
@@ -49,6 +49,14 @@ function AuthGuard({children}: { children: React.ReactNode }) {
             return () => handle.cancel();
         }
     }, [isLoading]);
+
+    if (isLoading) {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
+                <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+        );
+    }
 
     return <>{children}</>;
 }
